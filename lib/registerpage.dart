@@ -1,31 +1,30 @@
 import 'package:sincot/mybutton.dart';
 import 'package:sincot/mytextfield.dart';
 import 'package:flutter/material.dart';
-import 'package:sincot/profilepage.dart';
+//import 'package:sincot/profilepage.dart';
 
-class LoginPage extends StatefulWidget {
+class RegisterPage extends StatefulWidget {
   final void Function()? onTap;
-  const LoginPage({
-    super.key,
-    required this.onTap,
-  });
+
+  const RegisterPage({super.key, this.onTap});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
-// Login method
-  void login() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ProfilePage(),
-      ),
-    );
+  void register() {
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const ProfilePage(),
+    //   ),
+    // );
   }
 
   @override
@@ -46,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
               Center(
                 child: Text(
-                  'Sincot Trading\nSign In Screen',
+                  'Sincot Trading\nRegister Screen',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20,
@@ -65,13 +64,21 @@ class _LoginPageState extends State<LoginPage> {
                   hintText: 'Password',
                   obscuretext: true),
               const SizedBox(height: 20),
-              MyButton(onTap: login, text: 'Sign In'),
+              MyTextField(
+                  controller: confirmPasswordController,
+                  hintText: 'Confirm Password',
+                  obscuretext: true),
+              const SizedBox(height: 20),
+              MyButton(
+                onTap: register,
+                text: 'Sign Up',
+              ),
               SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Not registered ? Register',
+                    'Already registered ? Sign in',
                     style: TextStyle(color: Colors.white),
                   ),
                   const SizedBox(width: 3),
