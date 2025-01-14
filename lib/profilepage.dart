@@ -52,13 +52,28 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Profile Page'),
+        backgroundColor: Colors.black,
+        title: Text(
+          'Profile Page',
+          style: TextStyle(
+            color: Color(0xffe6cf8c),
+          ),
+        ),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: Icon(Icons.logout), // Logout icon
-            onPressed: logout, // Trigger logout method when pressed
+          Padding(
+            padding:
+                const EdgeInsets.only(right: 16.0), // Add space to the right
+            child: IconButton(
+              icon: Icon(
+                Icons.logout,
+                size: 30,
+                color: Color(0xffe6cf8c),
+              ), // Logout icon
+              onPressed: logout, // Trigger logout method when pressed
+            ),
           ),
         ],
       ),
