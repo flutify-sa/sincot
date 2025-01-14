@@ -1,7 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:sincot/authservice.dart';
 import 'package:sincot/mybutton.dart';
 import 'package:sincot/mytextfield.dart';
 import 'package:flutter/material.dart';
-import 'package:sincot/profilepage.dart';
+import 'package:sincot/registerpage.dart';
+import 'package:sincot/profilepage.dart'; // Make sure ProfilePage is imported
 
 class LoginPage extends StatefulWidget {
   final void Function()? onTap;
@@ -18,31 +22,43 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-// Login method
-  void login() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ProfilePage(),
-      ),
-    );
+  final Authservice _authService = Authservice();
+
+  // Login method
+  Future<void> login() async {
+    final email = emailController.text;
+    final password = passwordController.text;
+
+    try {
+      // Attempt login
+      await _authService.signInWithEmailPassword(email, password);
+
+      // After successful login, navigate to ProfilePage
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ProfilePage()), // Navigate to ProfilePage
+      );
+    } catch (e) {
+      // If login fails, show an error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Mitch 09:34'),
-      // ),
       backgroundColor: Colors.black,
       body: Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'assets/newlogo.jpg',
-              ),
+              Image.asset('assets/newlogo.jpg'),
               const SizedBox(height: 20),
               Center(
                 child: Text(
@@ -56,14 +72,16 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 25),
               MyTextField(
-                  controller: emailController,
-                  hintText: 'Email',
-                  obscuretext: false),
+                controller: emailController,
+                hintText: 'Email',
+                obscuretext: false,
+              ),
               const SizedBox(height: 10),
               MyTextField(
-                  controller: passwordController,
-                  hintText: 'Password',
-                  obscuretext: true),
+                controller: passwordController,
+                hintText: 'Password',
+                obscuretext: true,
+              ),
               const SizedBox(height: 20),
               MyButton(onTap: login, text: 'Sign In'),
               SizedBox(height: 10),
@@ -71,17 +89,24 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Not registered ? Register',
+                    'Not registered ? ',
                     style: TextStyle(color: Colors.white),
                   ),
                   const SizedBox(width: 3),
                   GestureDetector(
-                    onTap: widget.onTap,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RegisterPage(),
+                        ),
+                      );
+                    },
                     child: Text(
-                      'here',
+                      'Register here',
                       style: TextStyle(
-                        color: Color(0xffe6cf8c),
-                      ),
+                          color: Color(0xffe6cf8c),
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],

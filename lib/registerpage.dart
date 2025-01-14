@@ -1,7 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:flutter/material.dart';
+import 'package:sincot/authservice.dart';
+import 'package:sincot/loginpage.dart';
 import 'package:sincot/mybutton.dart';
 import 'package:sincot/mytextfield.dart';
-import 'package:flutter/material.dart';
-//import 'package:sincot/profilepage.dart';
 
 class RegisterPage extends StatefulWidget {
   final void Function()? onTap;
@@ -18,21 +21,115 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  void register() {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const ProfilePage(),
-    //   ),
-    // );
+  bool _isLoading = false; // To manage loading state
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> register() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('All fields are required')),
+        );
+      }
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    if (!RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+$").hasMatch(email)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invalid email format')),
+        );
+      }
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    if (password != confirmPassword) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Passwords do not match')),
+        );
+      }
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Password must be at least 6 characters long')),
+        );
+      }
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    try {
+      final response =
+          await Authservice().signupWithEmailPassword(email, password);
+      if (response.user != null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Registration Successful')),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => LoginPage(
+                      onTap: () {},
+                    )),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Registration failed')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Mitch 09:34'),
-      // ),
       backgroundColor: Colors.black,
       body: Center(
         child: SingleChildScrollView(
@@ -49,46 +146,58 @@ class _RegisterPageState extends State<RegisterPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20,
-                    color: Color(0xffe6cf8c), // Hex color code
+                    color: Color(0xffe6cf8c),
                   ),
                 ),
               ),
               const SizedBox(height: 25),
               MyTextField(
-                  controller: emailController,
-                  hintText: 'Email',
-                  obscuretext: false),
+                controller: emailController,
+                hintText: 'Email',
+                obscuretext: false,
+              ),
               const SizedBox(height: 10),
               MyTextField(
-                  controller: passwordController,
-                  hintText: 'Password',
-                  obscuretext: true),
+                controller: passwordController,
+                hintText: 'Password',
+                obscuretext: true,
+              ),
               const SizedBox(height: 10),
               MyTextField(
-                  controller: confirmPasswordController,
-                  hintText: 'Confirm Password',
-                  obscuretext: true),
+                controller: confirmPasswordController,
+                hintText: 'Confirm Password',
+                obscuretext: true,
+              ),
               const SizedBox(height: 20),
               MyButton(
-                onTap: register,
-                text: 'Sign Up',
+                onTap: _isLoading ? null : register,
+                text: _isLoading ? 'Loading...' : 'Sign Up',
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Already registered ? Sign in',
+                    'Already registered?',
                     style: TextStyle(color: Colors.white),
                   ),
                   const SizedBox(width: 3),
                   GestureDetector(
-                    onTap: widget.onTap,
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginPage(
+                            onTap: () {},
+                          ),
+                        ),
+                      );
+                    },
                     child: Text(
-                      'here',
+                      ' Sign in here',
                       style: TextStyle(
-                        color: Color(0xffe6cf8c),
-                      ),
+                          color: Color(0xffe6cf8c),
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
