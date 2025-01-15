@@ -217,13 +217,12 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start, // Align from the top
           children: [
             if (_isProfileUpdated) ...[
-              // Card with profile data
               Card(
                 color: Color(0xff2c2c2c), // Dark card color
                 elevation: 4, // Card shadow
@@ -312,30 +311,39 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       SizedBox(height: 10),
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment
+                            .start, // Aligns content to the top
                         children: [
                           Text(
                             'Email: ',
                             style: TextStyle(
                                 color: Color(0xffe6cf8c), fontSize: 16),
                           ),
-                          Text(
-                            _userEmail,
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          Expanded(
+                            child: Text(
+                              _userEmail,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                              overflow: TextOverflow
+                                  .ellipsis, // Optional: Adds "..." if text is too long
+                            ),
                           ),
                         ],
                       ),
+                      SizedBox(height: 10),
                     ],
                   ),
                 ),
               ),
+              Text(
+                'You need to upload the following:\nCopy of ID. / Proof of Address.\nQualifications - EEA1\nBank Confirmation.',
+                style: TextStyle(color: Colors.white, fontSize: 12),
+              ),
             ],
-            Spacer(),
+            SizedBox(height: 20), // Add spacing between sections
             MyProfileButton(
               onTap: _showEditProfileDialog,
               text: 'Edit Profile',
-            ),
-            const SizedBox(
-              height: 20,
             ),
           ],
         ),

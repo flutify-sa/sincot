@@ -16,7 +16,7 @@ class MyProfileButton extends StatelessWidget {
       onTap: onTap,
       child: IntrinsicWidth(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           margin:
               EdgeInsets.symmetric(horizontal: 10), // Adjust margin as needed
           decoration: BoxDecoration(
