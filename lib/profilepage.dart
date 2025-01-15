@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sincot/authservice.dart';
 import 'package:sincot/loginpage.dart';
 import 'package:sincot/profilebutton.dart';
+import 'package:sincot/uploaddocuments.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -234,7 +235,9 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: Colors.black,
         title: Text(
           'Profile Page',
-          style: TextStyle(color: Color(0xffe6cf8c)),
+          style: TextStyle(
+            color: Color(0xffe6cf8c),
+          ),
         ),
         centerTitle: true,
         actions: [
@@ -269,11 +272,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           Text(
                             'Full Name: ',
                             style: TextStyle(
-                                color: Color(0xffe6cf8c), fontSize: 16),
+                                color: Color(0xffe6cf8c), fontSize: 14),
                           ),
                           Text(
                             '${_nameController.text} ${_surnameController.text}',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                            style: TextStyle(color: Colors.white, fontSize: 14),
                           ),
                         ],
                       ),
@@ -283,11 +286,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           Text(
                             'ID: ',
                             style: TextStyle(
-                                color: Color(0xffe6cf8c), fontSize: 16),
+                                color: Color(0xffe6cf8c), fontSize: 14),
                           ),
                           Text(
                             _idController.text,
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                            style: TextStyle(color: Colors.white, fontSize: 14),
                           ),
                         ],
                       ),
@@ -295,21 +298,21 @@ class _ProfilePageState extends State<ProfilePage> {
                       Text(
                         'Address:',
                         style:
-                            TextStyle(color: Color(0xffe6cf8c), fontSize: 16),
+                            TextStyle(color: Color(0xffe6cf8c), fontSize: 14),
                       ),
                       Text(
                         _addressController.text,
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        style: TextStyle(color: Colors.white, fontSize: 14),
                       ),
                       SizedBox(height: 10),
                       Text(
                         'Bank Details:',
                         style:
-                            TextStyle(color: Color(0xffe6cf8c), fontSize: 16),
+                            TextStyle(color: Color(0xffe6cf8c), fontSize: 14),
                       ),
                       Text(
                         _bankDetailsController.text,
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        style: TextStyle(color: Colors.white, fontSize: 14),
                       ),
                       SizedBox(height: 10),
                       Row(
@@ -317,11 +320,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           Text(
                             'Next of Kin: ',
                             style: TextStyle(
-                                color: Color(0xffe6cf8c), fontSize: 16),
+                                color: Color(0xffe6cf8c), fontSize: 14),
                           ),
                           Text(
                             _nextOfKinController.text,
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                            style: TextStyle(color: Colors.white, fontSize: 14),
                           ),
                         ],
                       ),
@@ -331,11 +334,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           Text(
                             'Mobile: ',
                             style: TextStyle(
-                                color: Color(0xffe6cf8c), fontSize: 16),
+                                color: Color(0xffe6cf8c), fontSize: 14),
                           ),
                           Text(
                             '0${_mobileController.text}', // Prepend 0 for display
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                            style: TextStyle(color: Colors.white, fontSize: 14),
                           ),
                         ],
                       ),
@@ -347,13 +350,13 @@ class _ProfilePageState extends State<ProfilePage> {
                           Text(
                             'Email: ',
                             style: TextStyle(
-                                color: Color(0xffe6cf8c), fontSize: 16),
+                                color: Color(0xffe6cf8c), fontSize: 14),
                           ),
                           Expanded(
                             child: Text(
                               _userEmail,
                               style:
-                                  TextStyle(color: Colors.white, fontSize: 16),
+                                  TextStyle(color: Colors.white, fontSize: 14),
                               overflow: TextOverflow
                                   .ellipsis, // Optional: Adds "..." if text is too long
                             ),
@@ -365,15 +368,23 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
-              Text(
-                'You need to upload the following:\nCopy of ID. / Proof of Address.\nQualifications - EEA1\nBank Confirmation.',
-                style: TextStyle(color: Colors.white, fontSize: 12),
-              ),
+              //  UploadDocuments(),
             ],
             SizedBox(height: 20), // Add spacing between sections
             MyProfileButton(
               onTap: _showEditProfileDialog,
               text: 'Edit Profile',
+            ),
+            SizedBox(height: 20), // Add spacing between sections
+            MyProfileButton(
+              onTap: () {
+                // Navigate to UploadDocuments screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UploadDocuments()),
+                );
+              },
+              text: 'Upload Documents',
             ),
           ],
         ),
