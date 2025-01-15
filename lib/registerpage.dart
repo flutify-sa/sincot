@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:sincot/authservice.dart';
 import 'package:sincot/loginpage.dart';
@@ -21,7 +19,9 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  bool _isLoading = false; // To manage loading state
+  bool _isLoading = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   void dispose() {
@@ -101,12 +101,12 @@ class _RegisterPageState extends State<RegisterPage> {
           );
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-                builder: (context) => LoginPage(
-                      onTap: () {},
-                    )),
+            MaterialPageRoute(builder: (context) => LoginPage(onTap: () {})),
           );
         }
+        emailController.clear();
+        passwordController.clear();
+        confirmPasswordController.clear();
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -136,18 +136,13 @@ class _RegisterPageState extends State<RegisterPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'assets/newlogo.jpg',
-              ),
+              Image.asset('assets/newlogo.jpg'),
               const SizedBox(height: 20),
               Center(
                 child: Text(
                   'Sincot Trading\nRegister Screen',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Color(0xffe6cf8c),
-                  ),
+                  style: TextStyle(fontSize: 20, color: Color(0xffe6cf8c)),
                 ),
               ),
               const SizedBox(height: 25),
@@ -157,16 +152,42 @@ class _RegisterPageState extends State<RegisterPage> {
                 obscuretext: false,
               ),
               const SizedBox(height: 10),
+              // Password field with visibility toggle
               MyTextField(
                 controller: passwordController,
                 hintText: 'Password',
-                obscuretext: true,
+                obscuretext: _obscurePassword,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
               ),
               const SizedBox(height: 10),
+              // Confirm Password field with visibility toggle
               MyTextField(
                 controller: confirmPasswordController,
                 hintText: 'Confirm Password',
-                obscuretext: true,
+                obscuretext: _obscureConfirmPassword,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureConfirmPassword
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureConfirmPassword = !_obscureConfirmPassword;
+                    });
+                  },
+                ),
               ),
               const SizedBox(height: 20),
               MyButton(
@@ -187,9 +208,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LoginPage(
-                            onTap: () {},
-                          ),
+                          builder: (context) => LoginPage(onTap: () {}),
                         ),
                       );
                     },

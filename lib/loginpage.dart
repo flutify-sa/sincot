@@ -21,6 +21,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool _obscureText = true; // To control the visibility of the password
 
   final Authservice _authService = Authservice();
 
@@ -32,6 +33,10 @@ class _LoginPageState extends State<LoginPage> {
     try {
       // Attempt login
       await _authService.signInWithEmailPassword(email, password);
+
+      // Clear text fields after login
+      emailController.clear();
+      passwordController.clear();
 
       // After successful login, navigate to ProfilePage
       Navigator.pushReplacement(
@@ -77,10 +82,23 @@ class _LoginPageState extends State<LoginPage> {
                 obscuretext: false,
               ),
               const SizedBox(height: 10),
+              // Password TextField with toggle visibility
               MyTextField(
                 controller: passwordController,
                 hintText: 'Password',
-                obscuretext: true,
+                obscuretext: _obscureText,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureText ? Icons.visibility : Icons.visibility_off,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureText =
+                          !_obscureText; // Toggle password visibility
+                    });
+                  },
+                ),
               ),
               const SizedBox(height: 20),
               MyButton(onTap: login, text: 'Sign In'),
