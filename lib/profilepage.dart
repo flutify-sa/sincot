@@ -3,9 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sincot/authservice.dart'; // Assuming this handles authentication
+import 'package:sincot/authservice.dart';
 import 'package:sincot/loginpage.dart';
 import 'package:sincot/profilebutton.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -33,6 +34,29 @@ class _ProfilePageState extends State<ProfilePage> {
     _loadProfile();
   }
 
+  Future<void> _saveProfileToSupabase() async {
+    final supabase = Supabase.instance.client;
+    final user = supabase.auth.currentUser;
+
+    // Directly insert or update the profile data without any checks or error handling
+    await supabase.from('profiles').upsert([
+      {
+        'user_id': user!.id, // Reference to the authenticated user
+        'name': _nameController.text,
+        'surname': _surnameController.text,
+        'mobile_number': _mobileController.text,
+        'address': _addressController.text,
+        'bank_details': _bankDetailsController.text,
+        'next_of_kin': _nextOfKinController.text,
+      }
+    ]);
+
+    // Success notification
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Profile saved/updated successfully!')),
+    );
+  }
+
   // Load profile data from shared preferences and auth service
   Future<void> _loadProfile() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -42,7 +66,7 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       _nameController.text = prefs.getString('name') ?? '';
       _surnameController.text = prefs.getString('surname') ?? '';
-      _mobileController.text = prefs.getString('mobile') ?? '';
+      _mobileController.text = prefs.getString('mobile_number') ?? '';
       _idController.text = prefs.getString('id') ?? '';
       _addressController.text = prefs.getString('address') ?? '';
       _bankDetailsController.text = prefs.getString('bankDetails') ?? '';
@@ -53,15 +77,21 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   // Save profile data to shared preferences
+  // ignore: unused_element
   Future<void> _saveProfile() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Save profile data to SharedPreferences (local storage)
     await prefs.setString('name', _nameController.text);
     await prefs.setString('surname', _surnameController.text);
-    await prefs.setString('mobile', _mobileController.text);
+    await prefs.setString('mobile_number', _mobileController.text);
     await prefs.setString('id', _idController.text);
     await prefs.setString('address', _addressController.text);
     await prefs.setString('bankDetails', _bankDetailsController.text);
     await prefs.setString('nextOfKin', _nextOfKinController.text);
+
+    // Now save or update the profile data to Supabase
+    await _saveProfileToSupabase();
 
     _loadProfile(); // Reload profile data after saving
   }
@@ -148,7 +178,7 @@ class _ProfilePageState extends State<ProfilePage> {
             TextButton(
               onPressed: () async {
                 if (_validateMobileNumber(_mobileController.text)) {
-                  await _saveProfile(); // Save profile and update UI
+                  await _saveProfileToSupabase(); // Save profile to Supabase
                   Navigator.pop(context);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
