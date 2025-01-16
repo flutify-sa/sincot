@@ -1,9 +1,10 @@
 // ignore_for_file: avoid_print
 
 import 'dart:io'; // Import this at the top of your file
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
+import 'package:sincot/message.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sincot/uploadbutton.dart';
 
@@ -83,6 +84,13 @@ class UploadDocumentsState extends State<UploadDocuments> {
 
   @override
   Widget build(BuildContext context) {
+    // Check if all documents are uploaded
+    bool allDocumentsUploaded = isIdUploaded &&
+        isAddressUploaded &&
+        isQualificationsUploaded &&
+        isEEA1Uploaded &&
+        isBankConfirmationUploaded;
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -180,6 +188,26 @@ class UploadDocumentsState extends State<UploadDocuments> {
                   text: 'Upload',
                 ),
               ),
+              // Show the Logout button only when all documents are uploaded
+              if (allDocumentsUploaded)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Handle logout here
+                      Supabase.instance.client.auth.signOut();
+                      // Navigate to MessagePage
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              MessagePage(), // Go to MessagePage
+                        ),
+                      );
+                    },
+                    child: Text('Logout'),
+                  ),
+                ),
             ],
           ),
         ),
