@@ -60,20 +60,30 @@ class _ProfilePageState extends State<ProfilePage> {
 
   // Load profile data from shared preferences and auth service
   Future<void> _loadProfile() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
     String email = _authService.getCurrentUserEmail() ?? '';
 
+    // Get profile data from Supabase
+    final supabase = Supabase.instance.client;
+    final user = supabase.auth.currentUser;
+
+    // Fetch the user's profile from Supabase
+    final response = await supabase
+        .from('profiles')
+        .select()
+        .eq('user_id', user!.id)
+        .single(); // Fetch a single record
+
     setState(() {
-      _nameController.text = prefs.getString('name') ?? '';
-      _surnameController.text = prefs.getString('surname') ?? '';
-      _mobileController.text = prefs.getString('mobile_number') ?? '';
-      _idController.text = prefs.getString('id') ?? '';
-      _addressController.text = prefs.getString('address') ?? '';
-      _bankDetailsController.text = prefs.getString('bankDetails') ?? '';
-      _nextOfKinController.text = prefs.getString('nextOfKin') ?? '';
+      // Directly access the fields from the response data
+      _nameController.text = response['name'] ?? '';
+      _surnameController.text = response['surname'] ?? '';
+      _mobileController.text = response['mobile_number'] ?? '';
+      _idController.text = response['id'] ?? '';
+      _addressController.text = response['address'] ?? '';
+      _bankDetailsController.text = response['bank_details'] ?? '';
+      _nextOfKinController.text = response['next_of_kin'] ?? '';
       _userEmail = email;
-      _isProfileUpdated = prefs.getString('name') != null;
+      _isProfileUpdated = true; // Profile is updated when we get data
     });
   }
 

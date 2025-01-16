@@ -4,7 +4,7 @@ import 'package:sincot/authservice.dart';
 import 'package:sincot/mybutton.dart';
 import 'package:sincot/mytextfield.dart';
 import 'package:flutter/material.dart';
-import 'package:sincot/registerpage.dart';
+//import 'package:sincot/registerpage.dart';
 import 'package:sincot/profilepage.dart'; // Make sure ProfilePage is imported
 
 class LoginPage extends StatefulWidget {
@@ -42,7 +42,8 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => ProfilePage()), // Navigate to ProfilePage
+          builder: (context) => ProfilePage(),
+        ), // Navigate to ProfilePage
       );
     } catch (e) {
       // If login fails, show an error message
@@ -103,32 +104,32 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
               MyButton(onTap: login, text: 'Sign In'),
               SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Not registered ? ',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  const SizedBox(width: 3),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RegisterPage(),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'Register here',
-                      style: TextStyle(
-                          color: Color(0xffe6cf8c),
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     Text(
+              //       'Not registered ? ',
+              //       style: TextStyle(color: Colors.white),
+              //     ),
+              //     const SizedBox(width: 3),
+              //     GestureDetector(
+              //       onTap: () {
+              //         Navigator.push(
+              //           context,
+              //           MaterialPageRoute(
+              //             builder: (context) => RegisterPage(),
+              //           ),
+              //         );
+              //       },
+              //       child: Text(
+              //         'Register here',
+              //         style: TextStyle(
+              //             color: Color(0xffe6cf8c),
+              //             fontWeight: FontWeight.bold),
+              //       ),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),
