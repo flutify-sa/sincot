@@ -1,4 +1,10 @@
+// ignore_for_file: avoid_print
+
+import 'dart:io'; // Import this at the top of your file
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sincot/uploadbutton.dart';
 
 class UploadDocuments extends StatefulWidget {
@@ -15,21 +21,64 @@ class UploadDocumentsState extends State<UploadDocuments> {
   bool isEEA1Uploaded = false;
   bool isBankConfirmationUploaded = false;
 
-  void uploadDocument(String documentType) {
-    // Simulate document upload and update checkbox state
-    setState(() {
-      if (documentType == 'ID') {
-        isIdUploaded = true;
-      } else if (documentType == 'Address') {
-        isAddressUploaded = true;
-      } else if (documentType == 'Qualifications') {
-        isQualificationsUploaded = true;
-      } else if (documentType == 'EEA1') {
-        isEEA1Uploaded = true;
-      } else if (documentType == 'Bank') {
-        isBankConfirmationUploaded = true;
+  Future<void> uploadDocument(String documentType) async {
+    try {
+      // Step 1: Pick the document file
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: false,
+        withData: true, // Ensure that file bytes are picked
+      );
+
+      if (result == null) {
+        print("No file selected.");
+        return; // If no file selected, return early
       }
-    });
+
+      PlatformFile file = result.files.first;
+      print("Picked file: ${file.name}");
+
+      // Check if bytes are available
+      if (file.bytes == null) {
+        print('No file bytes available for ${file.name}.');
+        return;
+      }
+
+      final fileBytes = file.bytes!;
+      final fileName = file.name;
+
+      print("File bytes length: ${fileBytes.length}");
+
+      // Step 2: Create a temporary File object
+      final tempFile = await _createTempFile(fileBytes, fileName);
+
+      // Step 3: Create a reference to Supabase storage
+      final storage = Supabase.instance.client.storage.from('profiles');
+
+      // Step 4: Upload the file
+      await storage.upload(
+        'uploads/$documentType/$fileName',
+        tempFile,
+      );
+
+      // Optional: Update the state after successful upload
+      setState(() {
+        if (documentType == 'ID') isIdUploaded = true;
+        if (documentType == 'Address') isAddressUploaded = true;
+        if (documentType == 'Qualifications') isQualificationsUploaded = true;
+        if (documentType == 'EEA1') isEEA1Uploaded = true;
+        if (documentType == 'Bank') isBankConfirmationUploaded = true;
+      });
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  // Function to create a temporary file from the bytes
+  Future<File> _createTempFile(Uint8List bytes, String fileName) async {
+    final tempDir = await Directory.systemTemp.createTemp();
+    final tempFile = File('${tempDir.path}/$fileName');
+    await tempFile.writeAsBytes(bytes);
+    return tempFile;
   }
 
   @override
@@ -127,9 +176,7 @@ class UploadDocumentsState extends State<UploadDocuments> {
                 secondary: UploadButtonButton(
                   onTap: isBankConfirmationUploaded
                       ? null
-                      : () => uploadDocument(
-                            'Bank',
-                          ),
+                      : () => uploadDocument('Bank'),
                   text: 'Upload',
                 ),
               ),
