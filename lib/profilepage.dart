@@ -27,7 +27,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _nextOfKinController = TextEditingController();
   final TextEditingController _saidController = TextEditingController();
   final TextEditingController _workerpinController = TextEditingController();
-  bool _isProfileUpdated = false;
+  bool _isProfileUpdated = true;
   String _userEmail = ''; // This will store the user's registered email
 
   @override
@@ -330,21 +330,38 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                       SizedBox(height: 10),
-                      Row(
+                      Column(
+                        // Use Column to stack ID and Pin vertically
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'ID: ',
-                            style: TextStyle(
-                                color: Color(0xffe6cf8c), fontSize: 14),
+                          Row(
+                            children: [
+                              Text(
+                                'ID: ',
+                                style: TextStyle(
+                                    color: Color(0xffe6cf8c), fontSize: 14),
+                              ),
+                              Text(
+                                _saidController.text,
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 14),
+                              ),
+                            ],
                           ),
-                          Text(
-                            'Pin: ',
-                            style: TextStyle(
-                                color: Color(0xffe6cf8c), fontSize: 14),
-                          ),
-                          Text(
-                            _workerpinController.text,
-                            style: TextStyle(color: Colors.white, fontSize: 14),
+                          SizedBox(height: 5), // Space between ID and Pin
+                          Row(
+                            children: [
+                              Text(
+                                'Pin: ',
+                                style: TextStyle(
+                                    color: Color(0xffe6cf8c), fontSize: 14),
+                              ),
+                              Text(
+                                _workerpinController.text,
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 14),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -422,6 +439,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
+
               //  UploadDocuments(),
             ],
             SizedBox(height: 20), // Add spacing between sections
