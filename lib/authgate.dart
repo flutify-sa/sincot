@@ -5,7 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:sincot/loginpage.dart';
-import 'package:sincot/profilepage.dart';
+import 'package:sincot/registerpage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthGate extends StatelessWidget {
@@ -20,11 +20,11 @@ class AuthGate extends StatelessWidget {
         final session = snapshot.hasData ? snapshot.data!.session : null;
 
         if (session != null) {
-          return ProfilePage();
-        } else {
           return LoginPage(
             onTap: () {},
           );
+        } else {
+          return RegisterPage();
         }
       },
     );

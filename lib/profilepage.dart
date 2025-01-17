@@ -25,7 +25,8 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _bankDetailsController = TextEditingController();
   final TextEditingController _nextOfKinController = TextEditingController();
-
+  final TextEditingController _saidController = TextEditingController();
+  final TextEditingController _workerpinController = TextEditingController();
   bool _isProfileUpdated = false;
   String _userEmail = ''; // This will store the user's registered email
 
@@ -49,6 +50,8 @@ class _ProfilePageState extends State<ProfilePage> {
         'address': _addressController.text,
         'bank_details': _bankDetailsController.text,
         'next_of_kin': _nextOfKinController.text,
+        'said': _saidController.text,
+        'workerpin': _workerpinController.text,
       }
     ]);
 
@@ -66,25 +69,49 @@ class _ProfilePageState extends State<ProfilePage> {
     final supabase = Supabase.instance.client;
     final user = supabase.auth.currentUser;
 
-    // Fetch the user's profile from Supabase
-    final response = await supabase
-        .from('profiles')
-        .select()
-        .eq('user_id', user!.id)
-        .single(); // Fetch a single record
+    if (user == null) {
+      // Handle the case where user is not authenticated
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('User is not authenticated')),
+      );
+      return;
+    }
 
-    setState(() {
-      // Directly access the fields from the response data
-      _nameController.text = response['name'] ?? '';
-      _surnameController.text = response['surname'] ?? '';
-      _mobileController.text = response['mobile_number'] ?? '';
-      _idController.text = response['id'] ?? '';
-      _addressController.text = response['address'] ?? '';
-      _bankDetailsController.text = response['bank_details'] ?? '';
-      _nextOfKinController.text = response['next_of_kin'] ?? '';
-      _userEmail = email;
-      _isProfileUpdated = true; // Profile is updated when we get data
-    });
+    try {
+      // Fetch the user's profile from Supabase
+      final response = await supabase
+          .from('profiles')
+          .select()
+          .eq('user_id', user.id)
+          .single(); // Fetch a single record
+
+      setState(() {
+        _nameController.text = response['name'] ?? '';
+        _surnameController.text = response['surname'] ?? '';
+        _workerpinController.text = response['workerpin'] ?? '';
+        _mobileController.text = response['mobile_number'] ?? '';
+        _idController.text = response['id'] ?? '';
+        _addressController.text = response['address'] ?? '';
+        _bankDetailsController.text = response['bank_details'] ?? '';
+        _nextOfKinController.text = response['next_of_kin'] ?? '';
+        _userEmail = email;
+        _saidController.text = response['said'] ?? '';
+        _isProfileUpdated = true; // Profile is updated when we get data
+      });
+    } catch (e) {
+      // Handle the case where no profile is found
+      if (e is PostgrestException && e.code == 'PGRST116') {
+        // Handle the specific case where no profile data is found
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No profile data found for the user')),
+        );
+      } else {
+        // Handle any other errors that might occur
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading profile: $e')),
+        );
+      }
+    }
   }
 
   // Save profile data to shared preferences
@@ -100,6 +127,8 @@ class _ProfilePageState extends State<ProfilePage> {
     await prefs.setString('address', _addressController.text);
     await prefs.setString('bankDetails', _bankDetailsController.text);
     await prefs.setString('nextOfKin', _nextOfKinController.text);
+    await prefs.setString('said', _saidController.text);
+    await prefs.setString('workerpin', _workerpinController.text);
 
     // Now save or update the profile data to Supabase
     await _saveProfileToSupabase();
@@ -126,9 +155,19 @@ class _ProfilePageState extends State<ProfilePage> {
                   decoration: InputDecoration(hintText: 'Surname'),
                 ),
                 TextField(
+                  controller: _workerpinController,
+                  decoration: InputDecoration(hintText: 'Pin Number'),
+                ),
+                TextField(
                   controller: _idController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(hintText: 'ID'),
+                  //  readOnly: true,
+                ),
+                TextField(
+                  controller: _saidController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(hintText: 'Confirm ID'),
                 ),
                 TextField(
                   controller: _addressController,
@@ -299,7 +338,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                 color: Color(0xffe6cf8c), fontSize: 14),
                           ),
                           Text(
-                            _idController.text,
+                            'Pin: ',
+                            style: TextStyle(
+                                color: Color(0xffe6cf8c), fontSize: 14),
+                          ),
+                          Text(
+                            _workerpinController.text,
                             style: TextStyle(color: Colors.white, fontSize: 14),
                           ),
                         ],
