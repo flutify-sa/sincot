@@ -1,10 +1,9 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'dart:io'; // Import this at the top of your file
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
-import 'package:sincot/message.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sincot/uploadbutton.dart';
 
@@ -200,16 +199,30 @@ class UploadDocumentsState extends State<UploadDocuments> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20.0),
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       // Handle logout here
-                      Supabase.instance.client.auth.signOut();
-                      // Navigate to MessagePage
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              MessagePage(), // Go to MessagePage
-                        ),
+                      await Supabase.instance.client.auth.signOut();
+
+                      // Show a message indicating the user is locked out
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Logged Out'),
+                            content: Text('You have been logged out.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  // Restart the app
+                                  Navigator.of(context).pop();
+                                  // Trigger a restart
+                                  SystemNavigator.pop();
+                                },
+                                child: Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
                       );
                     },
                     child: Text('Logout'),
