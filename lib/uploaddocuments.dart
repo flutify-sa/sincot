@@ -52,14 +52,19 @@ class UploadDocumentsState extends State<UploadDocuments> {
       // Step 2: Create a temporary File object
       final tempFile = await _createTempFile(fileBytes, fileName);
 
-      // Step 3: Create a reference to Supabase storage
+      // Step 3: Get the user ID
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) {
+        print("User ID is not available.");
+        return;
+      }
+
+      // Step 4: Create a reference to Supabase storage
       final storage = Supabase.instance.client.storage.from('profiles');
 
-      // Step 4: Upload the file
-      await storage.upload(
-        'uploads/$documentType/$fileName',
-        tempFile,
-      );
+      // Step 5: Upload the file with a custom folder path
+      final storagePath = 'uploads/$userId/$documentType/$fileName';
+      await storage.upload(storagePath, tempFile);
 
       // Optional: Update the state after successful upload
       setState(() {
