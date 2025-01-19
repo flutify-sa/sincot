@@ -4,8 +4,10 @@ import 'dart:io'; // Import this at the top of your file
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
+import 'package:sincot/loginpage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sincot/uploadbutton.dart';
+import 'package:sincot/authservice.dart';
 
 class UploadDocuments extends StatefulWidget {
   const UploadDocuments({super.key});
@@ -20,6 +22,8 @@ class UploadDocumentsState extends State<UploadDocuments> {
   bool isQualificationsUploaded = false;
   bool isEEA1Uploaded = false;
   bool isBankConfirmationUploaded = false;
+
+  final Authservice _authService = Authservice();
 
   Future<void> uploadDocument(String documentType) async {
     try {
@@ -81,6 +85,27 @@ class UploadDocumentsState extends State<UploadDocuments> {
     }
   }
 
+  Future<void> logout() async {
+    try {
+      await _authService.signOut();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Logged out successfully')),
+        );
+      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage(onTap: () {})),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
+
   // Function to create a temporary file from the bytes
   Future<File> _createTempFile(Uint8List bytes, String fileName) async {
     final tempDir = await Directory.systemTemp.createTemp();
@@ -108,6 +133,15 @@ class UploadDocumentsState extends State<UploadDocuments> {
             color: Colors.black,
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: IconButton(
+              icon: Icon(Icons.logout, size: 30, color: Color(0xffe6cf8c)),
+              onPressed: logout,
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -195,38 +229,17 @@ class UploadDocumentsState extends State<UploadDocuments> {
                   text: 'Upload',
                 ),
               ),
-              // Show the Logout button only when all documents are uploaded
+              // Show the text box only when all documents are uploaded
               if (allDocumentsUploaded)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      // Handle logout here
-                      await Supabase.instance.client.auth.signOut();
-
-                      // Show a message indicating the user is locked out
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Logged Out'),
-                            content: Text('You have been logged out.'),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  // Restart the app
-                                  Navigator.of(context).pop();
-                                  // Trigger a restart
-                                  SystemNavigator.pop();
-                                },
-                                child: Text('OK'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: Text('Logout'),
+                  child: Text(
+                    'All documents uploaded. Thank you. Kindly log out.',
+                    style: TextStyle(
+                      color: Colors.green,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
             ],
