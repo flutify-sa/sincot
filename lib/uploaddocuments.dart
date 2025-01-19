@@ -58,16 +58,17 @@ class UploadDocumentsState extends State<UploadDocuments> {
         return;
       }
 
-      // Step 4: Create a reference to Supabase storage
-      final storage = Supabase.instance.client.storage.from('profiles');
-
-      // Step 5: Create the file path for storage
+      // Step 4: Create the file path with document type as subfolder
       final storagePath = 'uploads/$userId/$documentType/$fileName';
 
-      // Step 6: Upload the file to the appropriate path
-      await storage.upload(storagePath, tempFile);
+      // Step 5: Upload the file to the specified path
+      final storage = Supabase.instance.client.storage.from('profiles');
+      // ignore: unused_local_variable
+      final response = await storage.upload(storagePath, tempFile);
 
-      // Optional: Update the state after successful upload
+      print('File uploaded to: $storagePath');
+
+      // Step 6: Mark the document as uploaded in the UI
       setState(() {
         if (documentType == 'ID') isIdUploaded = true;
         if (documentType == 'Address') isAddressUploaded = true;
