@@ -370,16 +370,32 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 5), // Space between ID and Pin
+                          SizedBox(height: 10), // Space between ID and Pin
                           Row(
                             children: [
                               Text(
-                                'Pin: ',
+                                'Children Names: ',
                                 style: TextStyle(
                                     color: Color(0xffe6cf8c), fontSize: 14),
                               ),
                               Text(
-                                _workerpinController.text,
+                                _childrenNamesController.text,
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 14),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10), // Space between ID and Pin
+
+                          Row(
+                            children: [
+                              Text(
+                                'Parents Info: ',
+                                style: TextStyle(
+                                    color: Color(0xffe6cf8c), fontSize: 14),
+                              ),
+                              Text(
+                                _parentDetailsController.text,
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 14),
                               ),
