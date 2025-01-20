@@ -1,15 +1,22 @@
+// ignore_for_file: avoid_print
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Authservice {
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  // Sign in with email / pwd
-  Future<AuthResponse> signInWithEmailPassword(
+  Future<AuthResponse?> signInWithEmailPassword(
       String email, String password) async {
-    return await _supabase.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
+    try {
+      final response = await _supabase.auth.signInWithPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
+      return response;
+    } catch (e) {
+      print('Login error: $e');
+      throw Exception('Failed to sign in: ${e.toString()}');
+    }
   }
 
   // Sign up with email / pwd

@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'package:sincot/authservice.dart';
 import 'package:sincot/mybutton.dart';
@@ -27,31 +27,27 @@ class _LoginPageState extends State<LoginPage> {
 
   // Login method
   Future<void> login() async {
-    final email = emailController.text;
-    final password = passwordController.text;
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
     try {
-      // Attempt login
-      await _authService.signInWithEmailPassword(email, password);
+      final response =
+          await _authService.signInWithEmailPassword(email, password);
 
-      // Clear text fields after login
-      emailController.clear();
-      passwordController.clear();
-
-      // After successful login, navigate to ProfilePage
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ProfilePage(),
-        ), // Navigate to ProfilePage
-      );
-    } catch (e) {
-      // If login fails, show an error message
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+      if (response?.session != null) {
+        print('Login successful for user: ${response?.session?.user.email}');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ProfilePage()),
         );
+      } else {
+        throw Exception('Invalid email or password.');
       }
+    } catch (e) {
+      print('Login failed: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
   }
 
