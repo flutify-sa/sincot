@@ -27,6 +27,11 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _nextOfKinController = TextEditingController();
   final TextEditingController _saidController = TextEditingController();
   final TextEditingController _workerpinController = TextEditingController();
+  final TextEditingController _childrenNamesController =
+      TextEditingController();
+  final TextEditingController _parentDetailsController =
+      TextEditingController();
+
   bool _isProfileUpdated = true;
   String _userEmail = ''; // This will store the user's registered email
 
@@ -43,7 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
     // Directly insert or update the profile data without any checks or error handling
     await supabase.from('profiles').upsert([
       {
-        'user_id': user!.id, // Reference to the authenticated user
+        'user_id': user!.id,
         'name': _nameController.text,
         'surname': _surnameController.text,
         'mobile_number': _mobileController.text,
@@ -52,6 +57,8 @@ class _ProfilePageState extends State<ProfilePage> {
         'next_of_kin': _nextOfKinController.text,
         'said': _saidController.text,
         'workerpin': _workerpinController.text,
+        'children_names': _childrenNamesController.text,
+        'parent_details': _parentDetailsController.text,
       }
     ]);
 
@@ -96,6 +103,9 @@ class _ProfilePageState extends State<ProfilePage> {
         _nextOfKinController.text = response['next_of_kin'] ?? '';
         _userEmail = email;
         _saidController.text = response['said'] ?? '';
+        _childrenNamesController.text = response['children_names'] ?? '';
+        _parentDetailsController.text = response['parent_details'] ?? '';
+
         _isProfileUpdated = true; // Profile is updated when we get data
       });
     } catch (e) {
@@ -129,6 +139,8 @@ class _ProfilePageState extends State<ProfilePage> {
     await prefs.setString('nextOfKin', _nextOfKinController.text);
     await prefs.setString('said', _saidController.text);
     await prefs.setString('workerpin', _workerpinController.text);
+    await prefs.setString('children_names', _childrenNamesController.text);
+    await prefs.setString('parent_details', _parentDetailsController.text);
 
     // Now save or update the profile data to Supabase
     await _saveProfileToSupabase();
@@ -173,6 +185,16 @@ class _ProfilePageState extends State<ProfilePage> {
                   controller: _addressController,
                   maxLines: 3, // Multiline
                   decoration: InputDecoration(hintText: 'Address'),
+                ),
+                TextField(
+                  controller: _childrenNamesController,
+                  maxLines: 3, // Multiline
+                  decoration: InputDecoration(hintText: 'Children Names'),
+                ),
+                TextField(
+                  controller: _parentDetailsController,
+                  maxLines: 3, // Multiline
+                  decoration: InputDecoration(hintText: 'Parent Details'),
                 ),
                 TextField(
                   controller: _bankDetailsController,
