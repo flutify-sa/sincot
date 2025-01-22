@@ -1,10 +1,10 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'package:sincot/authservice.dart';
+import 'package:sincot/local.dart';
 import 'package:sincot/mybutton.dart';
 import 'package:sincot/mytextfield.dart';
 import 'package:flutter/material.dart';
-import 'package:sincot/profilepage.dart';
 import 'package:sincot/temp.dart'; // Make sure ProfilePage is imported
 
 class LoginPage extends StatefulWidget {
@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
         print('Login successful for user: ${response?.session?.user.email}');
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => ProfilePage()),
+          MaterialPageRoute(builder: (context) => LocalContractPage()),
         );
       } else {
         throw Exception('Invalid email or password.');
