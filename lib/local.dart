@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:supabase/supabase.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
@@ -221,7 +221,10 @@ class _LocalContractPageState extends State<LocalContractPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                   ),
-                  child: Text('Reject'),
+                  child: Text(
+                    'Reject',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -231,7 +234,10 @@ class _LocalContractPageState extends State<LocalContractPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                   ),
-                  child: Text('Accept'),
+                  child: Text(
+                    'Accept',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),
@@ -347,6 +353,7 @@ class _LocalContractPageState extends State<LocalContractPage> {
       if (!mounted) return; // Check if the widget is still mounted
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Failed to upload PDF: $e')));
+      print(e);
     }
   }
 }
