@@ -1,8 +1,32 @@
 import 'package:flutter/material.dart';
+import 'text_utils.dart';
 
 class ContractTextWidget extends StatelessWidget {
+  final String name;
+  final String surname;
+  final String mobile;
+  final String id;
+  final String address;
+  final String bankDetails;
+  final String nextOfKin;
+  final String said;
+  final String workerpin;
+  final String childrenNames;
+  final String parentDetails;
+
   const ContractTextWidget({
     super.key,
+    required this.name,
+    required this.surname,
+    required this.mobile,
+    required this.id,
+    required this.address,
+    required this.bankDetails,
+    required this.nextOfKin,
+    required this.said,
+    required this.workerpin,
+    required this.childrenNames,
+    required this.parentDetails,
   });
 
   // Method to generate the contract content
@@ -21,9 +45,8 @@ CHURCH STREET 5b, HENNENMAN, 9445
 
 And
 
-Initials & Surname: 
-
-I.D. Number: #
+Initials & Surname: $name $surname,
+I.D. Number: $said
 
 (Herein after referred to as "the Employee")
 
@@ -43,17 +66,12 @@ Please note that no banking details will be changed after the acceptance of this
 
 Any changes to the above must be communicated to the Employer in writing within 30 (Thirty) days of the change.
 
-Address
-
-Hometown
-
-Banking Details
-
-Tax No
-
-Employee Contact No
-
-Emergency Contact No
+Address: $address
+Hometown: #
+Banking Details: $bankDetails
+Tax No: #
+Employee Contact No: $mobile
+Emergency Contact No: $mobile
 
 • LIMITED DURATION CONTRACT
 This is NOT a permanent employment contract and under NO circumstances may it be construed as such. This contract shall expire automatically on the date specified herein below.
@@ -141,11 +159,11 @@ Take note that the accurate completion of the below list is very important. If y
 Kindly complete the Names & Surnames of your family members as / where applicable.
 
 WHEN THE EMPLOYEE’S CHILD IS SICK:
-Children:
+Children: $childrenNames
 
-Adoptive Children
+Adoptive Children: #
 
-Grand Children
+Grand Children: #
 
 IN THE EVENT OF THE DEATH OF A MEMBER OF THE EMPLOYEE’S IMMEDIATE FAMILY:
 
@@ -155,17 +173,17 @@ Immediate Family means:
 
 • The employee’s parent, adoptive parent, grandparent, child, adopted child, grand children (as per above) or siblings.
 
-Spouse/Life Partner:
+Spouse/Life Partner: #
 
-Parents
+Parents: $parentDetails
 
-Adoptive Parents
+Adoptive Parents: #
 
-Grand Parents
+Grand Parents: #
 
-Brothers
+Brothers: #
 
-Sisters
+Sisters: #
 
 Before granting an employee leave in terms of this clause, an employer may require reasonable proof of an event for which the leave was required.
 
@@ -305,7 +323,7 @@ It is the responsibility of each employee to familiarise themselves with the com
 
 Signed at # on this 00/00/2024.
 
-Employee _____________
+Employee $surname
 Witness ______________
 Employer ______________
 ''';
@@ -318,9 +336,12 @@ Employer ______________
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            getContractContent(),
-            style: TextStyle(fontSize: 16),
+          RichText(
+            text: TextSpan(
+              style:
+                  TextStyle(fontSize: 16, color: Colors.black), // Default style
+              children: parseContractText(getContractContent()),
+            ),
           ),
         ],
       ),

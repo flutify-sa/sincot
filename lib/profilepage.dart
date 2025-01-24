@@ -7,6 +7,7 @@ import 'package:sincot/authservice.dart';
 import 'package:sincot/loginpage.dart';
 import 'package:sincot/profilebutton.dart';
 import 'package:sincot/uploaddocuments.dart';
+import 'package:sincot/local.dart'; // Import LocalContractPage
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -33,6 +34,7 @@ class _ProfilePageState extends State<ProfilePage> {
       TextEditingController();
 
   bool _isProfileUpdated = true;
+  bool _isLocalContractButtonActive = false; // New state for button activation
   String _userEmail = ''; // This will store the user's registered email
 
   @override
@@ -66,6 +68,11 @@ class _ProfilePageState extends State<ProfilePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Profile saved/updated successfully!')),
     );
+
+    // Enable the Local Contract button after saving
+    setState(() {
+      _isLocalContractButtonActive = true;
+    });
   }
 
   // Load profile data from shared preferences and auth service
@@ -97,7 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
         _surnameController.text = response['surname'] ?? '';
         _workerpinController.text = response['workerpin'] ?? '';
         _mobileController.text = response['mobile_number'] ?? '';
-        _idController.text = response['id'] ?? '';
+        _saidController.text = response['id'] ?? '';
         _addressController.text = response['address'] ?? '';
         _bankDetailsController.text = response['bank_details'] ?? '';
         _nextOfKinController.text = response['next_of_kin'] ?? '';
@@ -105,7 +112,6 @@ class _ProfilePageState extends State<ProfilePage> {
         _saidController.text = response['said'] ?? '';
         _childrenNamesController.text = response['children_names'] ?? '';
         _parentDetailsController.text = response['parent_details'] ?? '';
-
         _isProfileUpdated = true; // Profile is updated when we get data
       });
     } catch (e) {
@@ -149,7 +155,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _showEditProfileDialog() async {
-    showDialog(
+    final updatedData = await showDialog<Map<String, String>>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -166,6 +172,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   controller: _surnameController,
                   decoration: InputDecoration(hintText: 'Surname'),
                 ),
+                // Other fields remain unchanged
                 TextField(
                   controller: _workerpinController,
                   decoration: InputDecoration(hintText: 'Pin Number'),
@@ -174,7 +181,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   controller: _idController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(hintText: 'ID'),
-                  //  readOnly: true,
                 ),
                 TextField(
                   controller: _saidController,
@@ -183,22 +189,22 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 TextField(
                   controller: _addressController,
-                  maxLines: 3, // Multiline
+                  maxLines: 3,
                   decoration: InputDecoration(hintText: 'Address'),
                 ),
                 TextField(
                   controller: _childrenNamesController,
-                  maxLines: 3, // Multiline
+                  maxLines: 3,
                   decoration: InputDecoration(hintText: 'Children Names'),
                 ),
                 TextField(
                   controller: _parentDetailsController,
-                  maxLines: 3, // Multiline
+                  maxLines: 3,
                   decoration: InputDecoration(hintText: 'Parent Details'),
                 ),
                 TextField(
                   controller: _bankDetailsController,
-                  maxLines: 3, // Multiline
+                  maxLines: 3,
                   decoration: InputDecoration(hintText: 'Bank Details'),
                 ),
                 TextField(
@@ -215,17 +221,13 @@ class _ProfilePageState extends State<ProfilePage> {
                         ? null
                         : 'Invalid phone number',
                   ),
-                  maxLength:
-                      9, // South African numbers allow 9 digits after +27
+                  maxLength: 9,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                        RegExp(r'[0-9]')), // Allow only numbers
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                   ],
                   onChanged: (value) {
-                    // Ensure the user cannot input a leading zero
                     if (value.startsWith('0')) {
-                      _mobileController.text =
-                          value.substring(1); // Remove leading zero
+                      _mobileController.text = value.substring(1);
                       _mobileController.selection = TextSelection.fromPosition(
                         TextPosition(offset: _mobileController.text.length),
                       );
@@ -235,7 +237,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 TextField(
                   controller: TextEditingController(text: _userEmail),
                   decoration: InputDecoration(hintText: 'Email'),
-                  enabled: false, // Email field is not editable
+                  enabled: false,
                 ),
               ],
             ),
@@ -250,8 +252,14 @@ class _ProfilePageState extends State<ProfilePage> {
             TextButton(
               onPressed: () async {
                 if (_validateMobileNumber(_mobileController.text)) {
-                  await _saveProfileToSupabase(); // Save profile to Supabase
-                  Navigator.pop(context);
+                  // Save profile to Supabase
+                  await _saveProfileToSupabase();
+
+                  // Return the updated name and surname
+                  Navigator.pop(context, {
+                    'name': _nameController.text,
+                    'surname': _surnameController.text,
+                  });
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Invalid mobile number')),
@@ -264,6 +272,56 @@ class _ProfilePageState extends State<ProfilePage> {
         );
       },
     );
+
+    if (updatedData != null) {
+      // Update the state with the new name and surname
+      setState(() {
+        _nameController.text = updatedData['name'] ?? _nameController.text;
+        _surnameController.text =
+            updatedData['surname'] ?? _surnameController.text;
+        _workerpinController.text =
+            updatedData['workerpin'] ?? _workerpinController.text;
+        _mobileController.text =
+            updatedData['mobile_number'] ?? _mobileController.text;
+        _idController.text = updatedData['id'] ?? _idController.text;
+        _addressController.text =
+            updatedData['address'] ?? _addressController.text;
+        _bankDetailsController.text =
+            updatedData['bank_details'] ?? _bankDetailsController.text;
+        _nextOfKinController.text =
+            updatedData['next_of_kin'] ?? _nextOfKinController.text;
+        _saidController.text = updatedData['said'] ?? _saidController.text;
+        _childrenNamesController.text =
+            updatedData['children_names'] ?? _childrenNamesController.text;
+        _parentDetailsController.text =
+            updatedData['parent_details'] ?? _parentDetailsController.text;
+      });
+
+      // Enable the Local Contract button after saving
+      setState(() {
+        _isLocalContractButtonActive = true;
+      });
+
+      // Navigate to LocalContractPage with the updated name and surname
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LocalContractPage(
+            name: updatedData['name']!,
+            surname: updatedData['surname']!,
+            mobile: _mobileController.text,
+            id: _idController.text,
+            address: _addressController.text,
+            bankDetails: _bankDetailsController.text,
+            nextOfKin: _nextOfKinController.text,
+            said: _saidController.text,
+            workerpin: _workerpinController.text,
+            childrenNames: _childrenNamesController.text,
+            parentDetails: _parentDetailsController.text,
+          ),
+        ),
+      );
+    }
   }
 
   bool _validateMobileNumber(String mobile) {
@@ -477,8 +535,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
-
-              //  UploadDocuments(),
             ],
             SizedBox(height: 20), // Add spacing between sections
             MyProfileButton(
@@ -495,6 +551,34 @@ class _ProfilePageState extends State<ProfilePage> {
                 );
               },
               text: 'Upload Documents',
+            ),
+            SizedBox(height: 20), // Add spacing between sections
+            MyProfileButton(
+              onTap: _isLocalContractButtonActive
+                  ? () {
+                      // Navigate to LocalContractPage and pass the profile data
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LocalContractPage(
+                            name: _nameController.text,
+                            surname: _surnameController.text,
+                            mobile: _mobileController.text,
+                            id: _idController.text,
+                            address: _addressController.text,
+                            bankDetails: _bankDetailsController.text,
+                            nextOfKin: _nextOfKinController.text,
+                            said: _saidController.text,
+                            workerpin: _workerpinController.text,
+                            childrenNames: _childrenNamesController.text,
+                            parentDetails: _parentDetailsController.text,
+                          ),
+                        ),
+                      );
+                    }
+                  : null, // Disable the button if not active
+              text: 'Local Contract',
+              isActive: _isLocalContractButtonActive, // Pass the state
             ),
           ],
         ),
