@@ -250,16 +250,17 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Text('Cancel'),
             ),
             TextButton(
-              onPressed: () async {
+              onPressed: () {
                 if (_validateMobileNumber(_mobileController.text)) {
-                  // Save profile to Supabase
-                  await _saveProfileToSupabase();
-
-                  // Return the updated name and surname
-                  Navigator.pop(context, {
+                  // Save profile to memory
+                  final profileData = {
                     'name': _nameController.text,
                     'surname': _surnameController.text,
-                  });
+                    'mobile': _mobileController.text,
+                  };
+
+                  // Pass data back to previous screen
+                  Navigator.pop(context, profileData);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Invalid mobile number')),
@@ -267,7 +268,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 }
               },
               child: Text('Save'),
-            ),
+            )
           ],
         );
       },
