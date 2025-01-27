@@ -28,9 +28,17 @@ class ContractTextWidget extends StatelessWidget {
     required this.childrenNames,
     required this.parentDetails,
   });
+  String getFormattedDate() {
+    final now = DateTime.now();
+    final year = now.year;
+    final month = now.month.toString().padLeft(2, '0'); // Ensure 2 digits
+    final day = now.day.toString().padLeft(2, '0'); // Ensure 2 digits
+    return '$year/$month/$day';
+  }
 
   // Method to generate the contract content
   String getContractContent() {
+    final formattedDate = getFormattedDate();
     return '''
 CONTRACT OF EMPLOYMENT
 (LIMITED DURATION)
@@ -321,11 +329,11 @@ The employee agrees that a copy of the Company’s Policies / Procedures / Disci
 
 It is the responsibility of each employee to familiarise themselves with the company’s policies and procedures.
 
-Signed at # on this 00/00/2024.
+Signed at # on this $formattedDate.
 
 Employee $surname
 Witness ______________
-Employer ______________
+Employer SINCOT TRADING
 ''';
   }
 
