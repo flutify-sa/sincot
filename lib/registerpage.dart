@@ -1,8 +1,13 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:sincot/authservice.dart';
 import 'package:sincot/loginpage.dart';
 import 'package:sincot/mybutton.dart';
 import 'package:sincot/mytextfield.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+final SupabaseClient _supabase = Supabase.instance.client;
 
 class RegisterPage extends StatefulWidget {
   final void Function()? onTap;
@@ -42,6 +47,7 @@ class _RegisterPageState extends State<RegisterPage> {
     final password = passwordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
 
+    // Validation checks
     if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -92,21 +98,44 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     try {
+      // Register the user
       final response =
           await Authservice().signupWithEmailPassword(email, password);
       if (response.user != null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Registration Successful')),
-          );
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => LoginPage(onTap: () {})),
-          );
+        // Insert user data into the 'profiles' table
+        final insertResponse = await _supabase.from('profiles').insert([
+          {
+            'id':
+                response.user!.id, // Use the user's UID from the auth response
+            'email': email,
+            'created_at': DateTime.now().toIso8601String(),
+          }
+        ]);
+
+        if (insertResponse.error != null) {
+          // Handle insertion error
+          print(
+              'Error inserting into profiles table: ${insertResponse.error!.message}');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to save profile data')),
+            );
+          }
+        } else {
+          // Success
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Registration Successful')),
+            );
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => LoginPage(onTap: () {})),
+            );
+          }
+          emailController.clear();
+          passwordController.clear();
+          confirmPasswordController.clear();
         }
-        emailController.clear();
-        passwordController.clear();
-        confirmPasswordController.clear();
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

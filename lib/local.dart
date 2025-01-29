@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, unused_local_variable
+// ignore_for_file: use_build_context_synchronously, unused_local_variable, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:sincot/contract_text_widget.dart'; // Ensure this import is correct
@@ -219,6 +219,8 @@ This is NOT a permanent employment contract and under NO circumstances may it be
 • All disputes will be handled at Hennenman (Administrative Head-Office) for the conciliation process within 30 days. If the matter could not be resolved, it must be referred to the CCMA Welkom (057) 910 8300.
 
 • WORKING HOURS, OVERTIME AND PAY WEEKEND
+
+• The hourly rate is R22.87
 
 • The employee will work 45 hours per week, Monday to Friday, 07:00 – 17:00 and/or on such days communicated by the Employer / Supervisor to the Employee’s.
 
