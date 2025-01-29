@@ -27,19 +27,27 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _isDisposed = false;
 
   @override
   void dispose() {
+    _isDisposed = true;
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
   }
 
+  void safeSetState(VoidCallback fn) {
+    if (!_isDisposed && mounted) {
+      setState(fn);
+    }
+  }
+
   Future<void> register() async {
     if (_isLoading) return;
 
-    setState(() {
+    safeSetState(() {
       _isLoading = true;
     });
 
@@ -54,7 +62,7 @@ class _RegisterPageState extends State<RegisterPage> {
           SnackBar(content: Text('All fields are required')),
         );
       }
-      setState(() {
+      safeSetState(() {
         _isLoading = false;
       });
       return;
@@ -66,7 +74,7 @@ class _RegisterPageState extends State<RegisterPage> {
           SnackBar(content: Text('Invalid email format')),
         );
       }
-      setState(() {
+      safeSetState(() {
         _isLoading = false;
       });
       return;
@@ -78,7 +86,7 @@ class _RegisterPageState extends State<RegisterPage> {
           SnackBar(content: Text('Passwords do not match')),
         );
       }
-      setState(() {
+      safeSetState(() {
         _isLoading = false;
       });
       return;
@@ -91,7 +99,7 @@ class _RegisterPageState extends State<RegisterPage> {
               content: Text('Password must be at least 6 characters long')),
         );
       }
-      setState(() {
+      safeSetState(() {
         _isLoading = false;
       });
       return;
@@ -105,15 +113,13 @@ class _RegisterPageState extends State<RegisterPage> {
         // Insert user data into the 'profiles' table
         final insertResponse = await _supabase.from('profiles').insert([
           {
-            'id':
-                response.user!.id, // Use the user's UID from the auth response
+            'id': response.user!.id,
             'email': email,
             'created_at': DateTime.now().toIso8601String(),
           }
         ]);
 
         if (insertResponse.error != null) {
-          // Handle insertion error
           print(
               'Error inserting into profiles table: ${insertResponse.error!.message}');
           if (mounted) {
@@ -122,15 +128,17 @@ class _RegisterPageState extends State<RegisterPage> {
             );
           }
         } else {
-          // Success
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Registration Successful')),
             );
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => LoginPage(onTap: () {})),
-            );
+            if (!_isDisposed) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => LoginPage(onTap: () {})),
+              );
+            }
           }
           emailController.clear();
           passwordController.clear();
@@ -150,7 +158,7 @@ class _RegisterPageState extends State<RegisterPage> {
         );
       }
     } finally {
-      setState(() {
+      safeSetState(() {
         _isLoading = false;
       });
     }
@@ -181,7 +189,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 obscuretext: false,
               ),
               const SizedBox(height: 10),
-              // Password field with visibility toggle
               MyTextField(
                 controller: passwordController,
                 hintText: 'Password',
@@ -192,14 +199,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     color: Colors.black,
                   ),
                   onPressed: () {
-                    setState(() {
+                    safeSetState(() {
                       _obscurePassword = !_obscurePassword;
                     });
                   },
                 ),
               ),
               const SizedBox(height: 10),
-              // Confirm Password field with visibility toggle
               MyTextField(
                 controller: confirmPasswordController,
                 hintText: 'Confirm Password',
@@ -212,7 +218,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     color: Colors.black,
                   ),
                   onPressed: () {
-                    setState(() {
+                    safeSetState(() {
                       _obscureConfirmPassword = !_obscureConfirmPassword;
                     });
                   },
@@ -234,12 +240,14 @@ class _RegisterPageState extends State<RegisterPage> {
                   const SizedBox(width: 3),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoginPage(onTap: () {}),
-                        ),
-                      );
+                      if (!_isDisposed) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LoginPage(onTap: () {}),
+                          ),
+                        );
+                      }
                     },
                     child: Text(
                       ' Sign in here',
