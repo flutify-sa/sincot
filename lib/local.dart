@@ -220,7 +220,7 @@ This is NOT a permanent employment contract and under NO circumstances may it be
 
 • WORKING HOURS, OVERTIME AND PAY WEEKEND
 
-• The hourly rate is R22.87
+• The hourly rate is R27.58
 
 • The employee will work 45 hours per week, Monday to Friday, 07:00 – 17:00 and/or on such days communicated by the Employer / Supervisor to the Employee’s.
 
