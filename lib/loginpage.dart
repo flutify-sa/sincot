@@ -5,7 +5,7 @@ import 'package:sincot/mybutton.dart';
 import 'package:sincot/mytextfield.dart';
 import 'package:flutter/material.dart';
 import 'package:sincot/profilepage.dart';
-import 'package:sincot/temp.dart'; // Make sure ProfilePage is imported
+import 'package:sincot/registerpage.dart';
 
 class LoginPage extends StatefulWidget {
   final void Function()? onTap;
@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => TempContractPage(),
+                          builder: (context) => RegisterPage(),
                         ),
                       );
                     },

@@ -8,6 +8,7 @@ import 'package:sincot/loginpage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sincot/uploadbutton.dart';
 import 'package:sincot/authservice.dart';
+import 'localacceptance.dart'; // Import the Localacceptance page
 
 class UploadDocuments extends StatefulWidget {
   const UploadDocuments({super.key});
@@ -81,12 +82,6 @@ class UploadDocumentsState extends State<UploadDocuments> {
 
   @override
   Widget build(BuildContext context) {
-    bool allDocumentsUploaded = isIdUploaded &&
-        isAddressUploaded &&
-        isQualificationsUploaded &&
-        isEEA1Uploaded &&
-        isBankConfirmationUploaded;
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Upload Documents'),
@@ -179,11 +174,29 @@ class UploadDocumentsState extends State<UploadDocuments> {
                 text: 'Upload',
               ),
             ),
-            if (allDocumentsUploaded)
-              Text(
-                'All required documents uploaded. You can upload your medical certificate later.',
-                style: TextStyle(color: Colors.green, fontSize: 16),
+            // Removed the "all documents uploaded" condition
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to Localacceptance page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Localacceptance()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                backgroundColor: Color(0xffe6cf8c),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                elevation: 0, // Removes shadow
               ),
+              child: Text(
+                'Proceed to Local Acceptance',
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
           ],
         ),
       ),

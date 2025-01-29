@@ -1,7 +1,8 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print, unused_field
 import 'package:flutter/material.dart';
-import 'package:sincot/localacceptance.dart';
+import 'package:sincot/uploaddocuments.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:sincot/localacceptance.dart'; // Adjust the import according to your file structure
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -195,12 +196,38 @@ class ProfilePageState extends State<ProfilePage> {
                               ),
                             ),
                           ),
-                          SizedBox(
-                              width: 10), // Adds space between the two buttons
-                          // Another Button
+                          SizedBox(width: 10), // Adds space between the buttons
+                          // Upload Documents Button
                           ElevatedButton(
                             onPressed: () {
-                              // Navigate to LocalContractPage
+                              // Navigate to UploadDocuments page
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => UploadDocuments()),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              backgroundColor: Color(0xffe6cf8c),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              elevation: 0, // Removes shadow
+                            ),
+                            child: Text(
+                              'Upload Documents',
+                              style: TextStyle(
+                                color: Colors.black, // Text color set to white
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10), // Adds space between the buttons
+                          // Local Acceptance Button
+                          ElevatedButton(
+                            onPressed: () {
+                              // Navigate to LocalAcceptance page
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -217,7 +244,7 @@ class ProfilePageState extends State<ProfilePage> {
                               elevation: 0, // Removes shadow
                             ),
                             child: Text(
-                              'Contract',
+                              'Local Acceptance',
                               style: TextStyle(
                                 color: Colors.black, // Text color set to white
                               ),
