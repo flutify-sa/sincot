@@ -19,6 +19,7 @@ dependencies:
   printing: ^5.13.4
   path_provider: ^2.1.1 # Add this line
   intl: ^0.20.2
+  flutter_pdfview: ^1.4.0
 
 dev_dependencies:
   flutter_test:

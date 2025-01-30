@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print, unused_field
 import 'package:flutter/material.dart';
+import 'package:sincot/localcontract.dart';
 import 'package:sincot/uploaddocuments.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sincot/localacceptance.dart'; // Adjust the import according to your file structure
@@ -87,6 +88,8 @@ class ProfilePageState extends State<ProfilePage> {
       print('Unexpected Error: $e');
       print('Stack Trace: $stackTrace');
       _showErrorSnackBar('An unexpected error occurred: $e');
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -174,7 +177,7 @@ class ProfilePageState extends State<ProfilePage> {
                 SizedBox(height: 32),
                 _isLoading
                     ? CircularProgressIndicator()
-                    : Row(
+                    : Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           // Save Button
@@ -190,13 +193,14 @@ class ProfilePageState extends State<ProfilePage> {
                               elevation: 0, // Removes shadow
                             ),
                             child: Text(
-                              'Save',
+                              'Save Info',
                               style: TextStyle(
                                 color: Colors.black, // Text color set to white
                               ),
                             ),
                           ),
-                          SizedBox(width: 10), // Adds space between the buttons
+                          SizedBox(
+                              height: 10), // Adds space between the buttons
                           // Upload Documents Button
                           ElevatedButton(
                             onPressed: () {
@@ -223,8 +227,7 @@ class ProfilePageState extends State<ProfilePage> {
                               ),
                             ),
                           ),
-                          SizedBox(width: 10), // Adds space between the buttons
-                          // Local Acceptance Button
+                          SizedBox(height: 10),
                           ElevatedButton(
                             onPressed: () {
                               // Navigate to LocalAcceptance page
@@ -244,9 +247,35 @@ class ProfilePageState extends State<ProfilePage> {
                               elevation: 0, // Removes shadow
                             ),
                             child: Text(
-                              'Local Acceptance',
+                              'View Terms',
                               style: TextStyle(
                                 color: Colors.black, // Text color set to white
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Localcontract(),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              backgroundColor: Color(0xffe6cf8c),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              elevation: 0, // Removes shadow
+                            ),
+                            child: Text(
+                              'View Contract',
+                              style: TextStyle(
+                                color: Colors.black, // Text color set to black
                               ),
                             ),
                           ),

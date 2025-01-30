@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'pdfview.dart'; // Make sure to import the PDFViewPage
 
 class Localacceptance extends StatefulWidget {
   const Localacceptance({super.key});
@@ -25,33 +26,37 @@ class LocalacceptanceState extends State<Localacceptance> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextFormField(
-              controller: _portalPinController,
-              obscureText: false,
-              decoration: InputDecoration(
-                labelText: 'Enter Portal PIN',
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _checkPin,
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                backgroundColor: Color(0xffe6cf8c),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
+            // Only show the form if workerData is null
+            if (workerData == null) ...[
+              TextFormField(
+                controller: _portalPinController,
+                obscureText: false,
+                decoration: InputDecoration(
+                  labelText: 'Enter Portal PIN',
                 ),
-                elevation: 0,
+                keyboardType: TextInputType.number,
               ),
-              child: Text(
-                'Submit',
-                style: TextStyle(
-                  color: Colors.black,
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _checkPin,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  backgroundColor: Color(0xffe6cf8c),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  elevation: 0,
+                ),
+                child: Text(
+                  'Submit',
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 16),
+              SizedBox(height: 16),
+            ],
+            // If workerData is not null, show the worker's data card
             if (workerData != null)
               Card(
                 shape: RoundedRectangleBorder(
@@ -96,22 +101,30 @@ class LocalacceptanceState extends State<Localacceptance> {
       workerData = response;
     });
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(workerData != null ? 'Success' : 'Error'),
-          content: Text(workerData != null
-              ? 'Data retrieved successfully.'
-              : 'Invalid PIN. Have you uploaded your documents?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
+    if (workerData != null) {
+      // If data found, navigate to the PDFViewPage
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PDFViewPage(),
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Invalid PIN. Have you uploaded your documents?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 }
