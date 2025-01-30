@@ -41,8 +41,11 @@ class ProfilePageState extends State<ProfilePage> {
 
       if (user == null) {
         _showErrorSnackBar('No user is logged in.');
-        return;
+        return; // Exit the function if no user is logged in
       }
+
+      // If the user is logged in, print the user ID
+      print('Logged in user ID: ${user.id}');
 
       final String userId = user.id; // Use the logged-in user's ID
       final String name = _nameController.text.trim();
@@ -73,6 +76,12 @@ class ProfilePageState extends State<ProfilePage> {
       print('Data being sent to Supabase: $updates');
 
       final response = await supabase.from('profiles').upsert(updates);
+
+      // Check if the response is null
+      if (response == null) {
+        _showErrorSnackBar('No response from Supabase.');
+        return;
+      }
 
       if (response.error != null) {
         print('Error: ${response.error!.message}');
@@ -113,7 +122,7 @@ class ProfilePageState extends State<ProfilePage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Form(
             key: _formKey,
             child: Column(
@@ -121,10 +130,9 @@ class ProfilePageState extends State<ProfilePage> {
                 Text(
                   'By providing your details, you acknowledge and accept the terms and conditions, as well as the contract associated with this process.',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
-                  textAlign: TextAlign.center, // Align the text to the center
+                  textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 20), // Space between the text and form fields
-
+                SizedBox(height: 20),
                 TextFormField(
                   controller: _nameController,
                   decoration: InputDecoration(labelText: 'Name'),
@@ -186,7 +194,6 @@ class ProfilePageState extends State<ProfilePage> {
                     ? CircularProgressIndicator()
                     : Column(
                         children: [
-                          // First Card (Save Info)
                           Card(
                             elevation: 5,
                             shape: RoundedRectangleBorder(
@@ -210,9 +217,7 @@ class ProfilePageState extends State<ProfilePage> {
                                     ),
                                     child: Text(
                                       'Save Info',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                      ),
+                                      style: TextStyle(color: Colors.black),
                                     ),
                                   ),
                                   SizedBox(height: 10),
@@ -236,9 +241,7 @@ class ProfilePageState extends State<ProfilePage> {
                                     ),
                                     child: Text(
                                       'Upload Documents',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                      ),
+                                      style: TextStyle(color: Colors.black),
                                     ),
                                   ),
                                   SizedBox(height: 10),
@@ -262,9 +265,7 @@ class ProfilePageState extends State<ProfilePage> {
                                     ),
                                     child: Text(
                                       'View Terms',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                      ),
+                                      style: TextStyle(color: Colors.black),
                                     ),
                                   ),
                                   SizedBox(height: 10),
@@ -273,8 +274,8 @@ class ProfilePageState extends State<ProfilePage> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => Localcontract(),
-                                        ),
+                                            builder: (context) =>
+                                                Localcontract()),
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(
@@ -288,16 +289,13 @@ class ProfilePageState extends State<ProfilePage> {
                                     ),
                                     child: Text(
                                       'View Contract',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                      ),
+                                      style: TextStyle(color: Colors.black),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
                           ),
-                          // Second Card (blank, placed below)
                         ],
                       ),
               ],
