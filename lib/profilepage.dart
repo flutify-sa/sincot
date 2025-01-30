@@ -118,6 +118,13 @@ class ProfilePageState extends State<ProfilePage> {
             key: _formKey,
             child: Column(
               children: [
+                Text(
+                  'By providing your details, you acknowledge and accept the terms and conditions, as well as the contract associated with this process.',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                  textAlign: TextAlign.center, // Align the text to the center
+                ),
+                SizedBox(height: 20), // Space between the text and form fields
+
                 TextFormField(
                   controller: _nameController,
                   decoration: InputDecoration(labelText: 'Name'),
@@ -178,107 +185,119 @@ class ProfilePageState extends State<ProfilePage> {
                 _isLoading
                     ? CircularProgressIndicator()
                     : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Save Button
-                          ElevatedButton(
-                            onPressed: _saveProfileToSupabase,
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
-                              backgroundColor: Color(0xffe6cf8c),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              elevation: 0, // Removes shadow
+                          // First Card (Save Info)
+                          Card(
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
-                              'Save Info',
-                              style: TextStyle(
-                                color: Colors.black, // Text color set to white
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: _saveProfileToSupabase,
+                                    style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 10),
+                                      backgroundColor: Color(0xffe6cf8c),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: Text(
+                                      'Save Info',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                UploadDocuments()),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 10),
+                                      backgroundColor: Color(0xffe6cf8c),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: Text(
+                                      'Upload Documents',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                Localacceptance()),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 10),
+                                      backgroundColor: Color(0xffe6cf8c),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: Text(
+                                      'View Terms',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Localcontract(),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 10),
+                                      backgroundColor: Color(0xffe6cf8c),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: Text(
+                                      'View Contract',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                          SizedBox(
-                              height: 10), // Adds space between the buttons
-                          // Upload Documents Button
-                          ElevatedButton(
-                            onPressed: () {
-                              // Navigate to UploadDocuments page
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => UploadDocuments()),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
-                              backgroundColor: Color(0xffe6cf8c),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              elevation: 0, // Removes shadow
-                            ),
-                            child: Text(
-                              'Upload Documents',
-                              style: TextStyle(
-                                color: Colors.black, // Text color set to white
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Navigate to LocalAcceptance page
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Localacceptance()),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
-                              backgroundColor: Color(0xffe6cf8c),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              elevation: 0, // Removes shadow
-                            ),
-                            child: Text(
-                              'View Terms',
-                              style: TextStyle(
-                                color: Colors.black, // Text color set to white
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Localcontract(),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
-                              backgroundColor: Color(0xffe6cf8c),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              elevation: 0, // Removes shadow
-                            ),
-                            child: Text(
-                              'View Contract',
-                              style: TextStyle(
-                                color: Colors.black, // Text color set to black
-                              ),
-                            ),
-                          ),
+                          // Second Card (blank, placed below)
                         ],
                       ),
               ],
