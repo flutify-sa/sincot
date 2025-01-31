@@ -457,12 +457,6 @@ class ProfilePageState extends State<ProfilePage> {
                     filled: true,
                   ),
                   style: TextStyle(fontSize: 12),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter the name of the first child';
-                    }
-                    return null;
-                  },
                 ),
                 SizedBox(height: 16),
                 TextFormField(
