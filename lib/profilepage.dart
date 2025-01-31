@@ -117,7 +117,9 @@ class ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue[50],
       appBar: AppBar(
+        backgroundColor: Colors.blue[50],
         title: Text('Edit Profile'),
       ),
       body: SingleChildScrollView(
@@ -128,14 +130,21 @@ class ProfilePageState extends State<ProfilePage> {
             child: Column(
               children: [
                 Text(
-                  'By providing your details, you acknowledge and accept the terms and conditions, as well as the contract associated with this process.',
+                  'Fill in ALL the fields below.',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 20),
                 TextFormField(
                   controller: _nameController,
-                  decoration: InputDecoration(labelText: 'Name'),
+                  decoration: InputDecoration(
+                      labelText: 'Enter your Name',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                      ),
+                      fillColor: Colors.grey.shade200,
+                      filled: true),
+                  style: TextStyle(fontSize: 12),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your name';
@@ -146,48 +155,188 @@ class ProfilePageState extends State<ProfilePage> {
                 SizedBox(height: 16),
                 TextFormField(
                   controller: _surnameController,
-                  decoration: InputDecoration(labelText: 'Surname'),
+                  decoration: InputDecoration(
+                    labelText: 'Enter your Surname',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    fillColor: Colors.grey.shade200,
+                    filled: true,
+                  ),
+                  style: TextStyle(fontSize: 12),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your surname';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 16),
                 TextFormField(
                   controller: _mobileController,
-                  decoration: InputDecoration(labelText: 'Mobile Number'),
+                  decoration: InputDecoration(
+                    labelText: 'Enter your Mobile Number',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    fillColor: Colors.grey.shade200,
+                    filled: true,
+                  ),
+                  style: TextStyle(fontSize: 12),
                   keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your mobile number';
+                    }
+                    if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
+                      return 'Please enter a valid 10-digit mobile number';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 16),
                 TextFormField(
                   controller: _addressController,
-                  decoration: InputDecoration(labelText: 'Address'),
+                  decoration: InputDecoration(
+                    labelText:
+                        'Please enter your Address (Street name and number,\nSuburb, Town and Postal code )',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    fillColor: Colors.grey.shade200,
+                    filled: true,
+                  ),
+                  style: TextStyle(fontSize: 12),
+                  maxLines: 4,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your address';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 16),
                 TextFormField(
                   controller: _bankDetailsController,
-                  decoration: InputDecoration(labelText: 'Bank Details'),
+                  decoration: InputDecoration(
+                    labelText:
+                        'Bank Details(Bank name, Account Number, Type of account (Savings, etc).\nPut each on a separate line)',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    fillColor: Colors.grey.shade200,
+                    filled: true,
+                  ),
+                  maxLines: 4,
+                  style: TextStyle(fontSize: 12),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your bank details';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 16),
                 TextFormField(
                   controller: _nextOfKinController,
-                  decoration: InputDecoration(labelText: 'Next of Kin'),
+                  decoration: InputDecoration(
+                    labelText: 'Next of Kin',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    fillColor: Colors.grey.shade200,
+                    filled: true,
+                  ),
+                  style: TextStyle(fontSize: 12),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter next of kin details';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 16),
                 TextFormField(
                   controller: _saidController,
-                  decoration: InputDecoration(labelText: 'ID Number'),
+                  decoration: InputDecoration(
+                    labelText: 'ID Number',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    fillColor: Colors.grey.shade200,
+                    filled: true,
+                  ),
+                  style: TextStyle(fontSize: 12),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your ID number';
+                    }
+                    if (!RegExp(r'^[0-9]{13}$').hasMatch(value)) {
+                      return 'Please enter a valid 13-digit ID number';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 16),
                 TextFormField(
                   controller: _workerpinController,
-                  decoration: InputDecoration(labelText: 'Worker PIN'),
+                  decoration: InputDecoration(
+                    labelText: 'Worker PIN',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    fillColor: Colors.grey.shade200,
+                    filled: true,
+                  ),
+                  style: TextStyle(fontSize: 12),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your worker PIN';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 16),
                 TextFormField(
                   controller: _childrenNamesController,
-                  decoration: InputDecoration(labelText: 'Children Names'),
+                  decoration: InputDecoration(
+                    labelText:
+                        'Children Names. Please enter their name and surnames. 1 per line',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    fillColor: Colors.grey.shade200,
+                    filled: true,
+                  ),
+                  style: TextStyle(fontSize: 12),
+                  maxLines: 7,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter children names (if applicable)';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 16),
                 TextFormField(
                   controller: _parentDetailsController,
-                  decoration: InputDecoration(labelText: 'Parent Details'),
+                  decoration: InputDecoration(
+                    labelText:
+                        'Parent Details. Please enter their name and surnames. 1 per line',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    fillColor: Colors.grey.shade200,
+                    filled: true,
+                  ),
+                  style: TextStyle(fontSize: 12),
+                  maxLines: 5,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter parent details';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 32),
                 _isLoading
@@ -195,6 +344,7 @@ class ProfilePageState extends State<ProfilePage> {
                     : Column(
                         children: [
                           Card(
+                            color: Colors.grey[200],
                             elevation: 5,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -202,7 +352,8 @@ class ProfilePageState extends State<ProfilePage> {
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment
+                                    .start, // Left align everything
                                 children: [
                                   ElevatedButton(
                                     onPressed: _saveProfileToSupabase,
@@ -217,7 +368,10 @@ class ProfilePageState extends State<ProfilePage> {
                                     ),
                                     child: Text(
                                       'Save Info',
-                                      style: TextStyle(color: Colors.black),
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
                                   SizedBox(height: 10),
@@ -241,7 +395,10 @@ class ProfilePageState extends State<ProfilePage> {
                                     ),
                                     child: Text(
                                       'Upload Documents',
-                                      style: TextStyle(color: Colors.black),
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
                                   SizedBox(height: 10),
@@ -264,8 +421,11 @@ class ProfilePageState extends State<ProfilePage> {
                                       elevation: 0,
                                     ),
                                     child: Text(
-                                      'View Terms',
-                                      style: TextStyle(color: Colors.black),
+                                      'View Policies and Procedures',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
                                   SizedBox(height: 10),
@@ -289,13 +449,16 @@ class ProfilePageState extends State<ProfilePage> {
                                     ),
                                     child: Text(
                                       'View Contract',
-                                      style: TextStyle(color: Colors.black),
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
+                          )
                         ],
                       ),
               ],
