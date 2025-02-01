@@ -77,7 +77,7 @@ class PDFViewPageState extends State<PDFViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Terms and Conditions'),
+        title: Text('Policies and Procedures'),
       ),
       body: Column(
         children: [

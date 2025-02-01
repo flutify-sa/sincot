@@ -128,15 +128,12 @@ class ProfilePageState extends State<ProfilePage> {
 
       print('Data being sent to Supabase: $updates');
 
+      // Upsert the data without error checking
       final response = await supabase.from('profiles').upsert(updates);
 
-      if (response.error != null) {
-        print('Error: ${response.error!.message}');
-        _showErrorSnackBar('Error: ${response.error!.message}');
-      } else {
-        print('Success: ${response.data}');
-        _showSuccessSnackBar('Profile updated successfully!');
-      }
+      // Log success without checking for errors
+      print('Success: ${response.data}');
+      _showSuccessSnackBar('Profile updated successfully!');
     } on PostgrestException catch (e) {
       print('Postgrest Error: ${e.message}');
       _showErrorSnackBar('Supabase error: ${e.message}');
@@ -524,110 +521,194 @@ class ProfilePageState extends State<ProfilePage> {
                   ),
                   style: TextStyle(fontSize: 12),
                 ),
-                SizedBox(height: 32),
+                SizedBox(height: 20),
                 _isLoading
                     ? CircularProgressIndicator()
-                    : Column(
-                        children: [
-                          ElevatedButton(
-                            onPressed: _saveProfileToSupabase,
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
-                              backgroundColor: Color(0xffe6cf8c),
+                    : SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Card(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20.0,
+                                  vertical: 10.0), // Margin around the card
+                              color: Colors.grey
+                                  .shade700, // Background color of the card
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(
+                                    10.0), // Optional: Rounded corners
                               ),
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              'Save Info',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 12,
+                              child: Padding(
+                                padding: const EdgeInsets.all(
+                                    16.0), // Padding inside the card
+
+                                child: Column(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: _saveProfileToSupabase,
+                                      style: ElevatedButton.styleFrom(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 10),
+                                        backgroundColor: Color(0xffe6cf8c),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child: Text(
+                                        'Save Info',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  UploadDocuments()),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 10),
+                                        backgroundColor: Color(0xffe6cf8c),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child: Text(
+                                        'Upload Documents',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  Localacceptance()),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 10),
+                                        backgroundColor: Color(0xffe6cf8c),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child: Text(
+                                        'View Policies and Procedures',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  Localcontract()),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 10),
+                                        backgroundColor: Color(0xffe6cf8c),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child: Text(
+                                        'View Contract',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(height: 10),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => UploadDocuments()),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
-                              backgroundColor: Color(0xffe6cf8c),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              'Upload Documents',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Localacceptance()),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
-                              backgroundColor: Color(0xffe6cf8c),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              'View Policies and Procedures',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Localcontract()),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
-                              backgroundColor: Color(0xffe6cf8c),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              'View Contract',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
+                Card(
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 20.0,
+                      vertical: 10.0), // Margin around the card
+                  color:
+                      Color(0xffe6cf8c), // Background color of the second card
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                        10.0), // Optional: Rounded corners
+                  ),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.all(16.0), // Padding inside the card
+                    child: Column(
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start, // Align text to the start
+                      children: [
+                        Text(
+                          '1. I accept the Policies and procedures.\n2. I accept the Contract.',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black, // Text color
+                          ),
+                        ),
+                        SizedBox(height: 10), // Space between text and button
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // Define your button action here
+                              print('Button pressed!');
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              backgroundColor:
+                                  Colors.black, // Button background color
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    6), // Rounded corners for the button
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              'Confirm Acceptance',
+                              style: TextStyle(
+                                color: Color(0xffe6cf8c), // Button text color
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
