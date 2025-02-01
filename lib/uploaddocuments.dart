@@ -21,7 +21,7 @@ class UploadDocumentsState extends State<UploadDocuments> {
   bool isIdUploaded = false;
   bool isAddressUploaded = false;
   bool isQualificationsUploaded = false;
-  bool isEEA1Uploaded = false;
+//  bool isEEA1Uploaded = false;
   bool isBankConfirmationUploaded = false;
   bool isMedicalUploaded = false;
 
@@ -64,7 +64,7 @@ class UploadDocumentsState extends State<UploadDocuments> {
         if (documentType == 'ID') isIdUploaded = true;
         if (documentType == 'Address') isAddressUploaded = true;
         if (documentType == 'Qualifications') isQualificationsUploaded = true;
-        if (documentType == 'EEA1') isEEA1Uploaded = true;
+        //   if (documentType == 'EEA1') isEEA1Uploaded = true;
         if (documentType == 'Bank') isBankConfirmationUploaded = true;
         if (documentType == 'Medical') isMedicalUploaded = true;
       });
@@ -138,17 +138,17 @@ class UploadDocumentsState extends State<UploadDocuments> {
                 text: 'Upload',
               ),
             ),
-            const SizedBox(height: 10),
-            CheckboxListTile(
-              title: Text('EEA1 Form'),
-              value: isEEA1Uploaded,
-              onChanged: null,
-              controlAffinity: ListTileControlAffinity.leading,
-              secondary: UploadButtonButton(
-                onTap: isEEA1Uploaded ? null : () => uploadDocument('EEA1'),
-                text: 'Upload',
-              ),
-            ),
+            // const SizedBox(height: 10),
+            // CheckboxListTile(
+            //   title: Text('EEA1 Form'),
+            //   value: isEEA1Uploaded,
+            //   onChanged: null,
+            //   controlAffinity: ListTileControlAffinity.leading,
+            //   secondary: UploadButtonButton(
+            //     onTap: isEEA1Uploaded ? null : () => uploadDocument('EEA1'),
+            //     text: 'Upload',
+            //   ),
+            // ),
             const SizedBox(height: 10),
             CheckboxListTile(
               title: Text('Bank Confirmation'),

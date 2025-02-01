@@ -32,6 +32,20 @@ class ProfilePageState extends State<ProfilePage> {
 
   final TextEditingController _nextOfKinController = TextEditingController();
   final TextEditingController _saidController = TextEditingController();
+  String? _selectedRaceGender; // Variable to hold the selected value
+  final List<String> _raceGenders = [
+    'Select Race and Gender'
+        'African Male',
+    'African Female',
+    'Asian Male',
+    'Asian Female',
+    'Coloured Male',
+    'Coloured Female',
+    'Indian Male',
+    'Indian Female',
+    'White Male',
+    'White Female',
+  ];
   final TextEditingController _workerpinController = TextEditingController();
   final TextEditingController _childrenNamesController1 =
       TextEditingController();
@@ -49,10 +63,6 @@ class ProfilePageState extends State<ProfilePage> {
   final _formKey = GlobalKey<FormState>();
   final SupabaseClient supabase = Supabase.instance.client;
   bool _isLoading = false;
-
-  // Checkbox states
-  final bool _acceptContract = false; // Changed to mutable
-  final bool _acceptPolicies = false; // Changed to mutable
 
   Future<void> _saveProfileToSupabase() async {
     if (!_formKey.currentState!.validate()) return;
@@ -122,8 +132,7 @@ class ProfilePageState extends State<ProfilePage> {
         'mother_in_law': motherinlaw,
         'father_in_law': fatherinlaw,
         'immediatefamily': immediatefamily,
-        'accept_contract': _acceptContract,
-        'accept_policies': _acceptPolicies,
+        'racegender': _selectedRaceGender,
       };
 
       print('Data being sent to Supabase: $updates');
@@ -219,6 +228,33 @@ class ProfilePageState extends State<ProfilePage> {
                     }
                     return null;
                   },
+                ),
+                SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _selectedRaceGender,
+                  hint: Text('Select Race and Gender'),
+                  items: _raceGenders.map((String raceGender) {
+                    return DropdownMenuItem<String>(
+                      value: raceGender,
+                      child: Text(raceGender),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedRaceGender =
+                          newValue; // Update the selected value
+                    });
+                  },
+                  validator: (value) =>
+                      value == null ? 'Please select a race and gender' : null,
+                  decoration: InputDecoration(
+                    fillColor: Color(0xffe6cf8c), // Set the fill color
+                    filled: true, // Enable the fill
+                    border: OutlineInputBorder(), // Optional: Add a border
+                    contentPadding: EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 12), // Optional: Adjust padding
+                  ),
                 ),
                 SizedBox(height: 16),
                 TextFormField(
@@ -656,13 +692,11 @@ class ProfilePageState extends State<ProfilePage> {
                       ),
                 Card(
                   margin: const EdgeInsets.symmetric(
-                      horizontal: 20.0,
-                      vertical: 10.0), // Margin around the card
-                  color:
-                      Color(0xffe6cf8c), // Background color of the second card
+                      horizontal: 20.0, vertical: 10.0),
+                  color: Color(0xffe6cf8c), // Background color of the card
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                        10.0), // Optional: Rounded corners
+                    borderRadius:
+                        BorderRadius.circular(10.0), // Rounded corners
                   ),
                   child: Padding(
                     padding:
@@ -671,6 +705,18 @@ class ProfilePageState extends State<ProfilePage> {
                       crossAxisAlignment:
                           CrossAxisAlignment.start, // Align text to the start
                       children: [
+                        // TextField for user to input their worker pin
+                        TextField(
+                          controller: _workerpinController,
+                          decoration: InputDecoration(
+                            labelText: 'Enter your Worker Pin',
+                            border: OutlineInputBorder(),
+                          ),
+                          obscureText: true, // Hide the pin input
+                        ),
+                        SizedBox(
+                            height:
+                                20), // Space between TextField and acceptance text
                         Text(
                           '1. I accept the Policies and procedures.\n2. I accept the Contract.',
                           style: TextStyle(
@@ -681,9 +727,29 @@ class ProfilePageState extends State<ProfilePage> {
                         SizedBox(height: 10), // Space between text and button
                         Center(
                           child: ElevatedButton(
-                            onPressed: () {
-                              // Define your button action here
-                              print('Button pressed!');
+                            onPressed: () async {
+                              final acceptanceText =
+                                  '1. I accept the Policies and procedures.\n2. I accept the Contract.';
+                              final workerPin = _workerpinController.text;
+
+                              print('Worker Pin: $workerPin');
+
+                              // Validate the worker pin
+                              await Supabase.instance.client
+                                  .from('profiles')
+                                  .select('workerpin')
+                                  .eq('workerpin', workerPin)
+                                  .single();
+
+                              // Proceed with the update
+                              await Supabase.instance.client
+                                  .from('profiles')
+                                  .update({
+                                'acceptance': acceptanceText,
+                              }).eq('workerpin', workerPin);
+
+                              // Print confirmation
+                              print('Acceptance confirmed!');
                             },
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.symmetric(
