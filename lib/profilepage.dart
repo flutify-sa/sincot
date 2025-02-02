@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, avoid_print, unused_field
+// ignore_for_file: use_build_context_synchronously, avoid_print, unused_field, unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:sincot/localcontract.dart';
 import 'package:sincot/uploaddocuments.dart';
@@ -728,28 +728,34 @@ class ProfilePageState extends State<ProfilePage> {
                         Center(
                           child: ElevatedButton(
                             onPressed: () async {
-                              final acceptanceText =
-                                  '1. I accept the Policies and procedures.\n2. I accept the Contract.';
+                              // Get the current date and time
+                              final currentDateTime = DateTime.now();
+                              final formattedDateTime = currentDateTime
+                                  .toIso8601String(); // Format as ISO 8601
+
                               final workerPin = _workerpinController.text;
 
                               print('Worker Pin: $workerPin');
+                              print('Current DateTime: $formattedDateTime');
 
                               // Validate the worker pin
-                              await Supabase.instance.client
+                              final response = await Supabase.instance.client
                                   .from('profiles')
                                   .select('workerpin')
                                   .eq('workerpin', workerPin)
                                   .single();
 
+                              // Check if the worker pin exists
                               // Proceed with the update
                               await Supabase.instance.client
                                   .from('profiles')
                                   .update({
-                                'acceptance': acceptanceText,
+                                'acceptance':
+                                    formattedDateTime, // Update the acceptance time
                               }).eq('workerpin', workerPin);
 
                               // Print confirmation
-                              print('Acceptance confirmed!');
+                              print('Acceptance time confirmed!');
                             },
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.symmetric(
