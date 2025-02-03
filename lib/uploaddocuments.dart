@@ -1,14 +1,10 @@
-// ignore_for_file: avoid_print, use_build_context_synchronously
+// ignore_for_file: avoid_print, unused_local_variable
 
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/services.dart';
-import 'package:sincot/loginpage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:sincot/uploadbutton.dart';
-import 'package:sincot/authservice.dart';
-import 'localacceptance.dart'; // Import the Localacceptance page
 
 class UploadDocuments extends StatefulWidget {
   const UploadDocuments({super.key});
@@ -21,56 +17,72 @@ class UploadDocumentsState extends State<UploadDocuments> {
   bool isIdUploaded = false;
   bool isAddressUploaded = false;
   bool isQualificationsUploaded = false;
-//  bool isEEA1Uploaded = false;
   bool isBankConfirmationUploaded = false;
   bool isMedicalUploaded = false;
 
-  final Authservice _authService = Authservice();
-
   Future<void> uploadDocument(String documentType) async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        allowMultiple: false,
-        withData: true,
-      );
+    // Step 1: Pick a file
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      withData: true,
+    );
 
-      if (result == null) {
-        print("No file selected.");
-        return;
-      }
-
-      PlatformFile file = result.files.first;
-      if (file.bytes == null) {
-        print('No file bytes available for ${file.name}.');
-        return;
-      }
-
-      final fileBytes = file.bytes!;
-      final fileName = file.name;
-
-      final tempFile = await _createTempFile(fileBytes, fileName);
-
-      final userId = Supabase.instance.client.auth.currentUser?.id;
-      if (userId == null) {
-        print("User ID is not available.");
-        return;
-      }
-
-      final storagePath = 'uploads/$userId/$documentType/$fileName';
-      final storage = Supabase.instance.client.storage.from('profiles');
-      await storage.upload(storagePath, tempFile);
-
-      setState(() {
-        if (documentType == 'ID') isIdUploaded = true;
-        if (documentType == 'Address') isAddressUploaded = true;
-        if (documentType == 'Qualifications') isQualificationsUploaded = true;
-        //   if (documentType == 'EEA1') isEEA1Uploaded = true;
-        if (documentType == 'Bank') isBankConfirmationUploaded = true;
-        if (documentType == 'Medical') isMedicalUploaded = true;
-      });
-    } catch (e) {
-      print('Error: $e');
+    if (result == null) {
+      return;
     }
+
+    PlatformFile file = result.files.first;
+    final fileBytes = file.bytes!;
+    final fileName = file.name;
+
+    // Step 2: Create a temporary file
+    final tempFile = await _createTempFile(fileBytes, fileName);
+
+    // Step 3: Retrieve the workerpin from the profiles table
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+
+    if (userId == null) {
+      return;
+    }
+
+    final response = await Supabase.instance.client
+        .from('profiles')
+        .select('workerpin')
+        .eq('user_id', userId)
+        .single();
+
+    final workerPin = response['workerpin'] as String?;
+
+    if (workerPin == null) {
+      return;
+    }
+
+    // Step 4: Define the storage path
+    final storagePath = 'uploads/$workerPin/$fileName';
+    final storage = Supabase.instance.client.storage.from('profiles');
+
+    // Step 5: Upload the file
+    final uploadResponse = await storage.upload(storagePath, tempFile);
+
+    // Check for errors in the upload response
+
+    // Step 6: Get the public URL of the uploaded file
+    final publicUrl = storage.getPublicUrl(storagePath);
+    print('File uploaded to: $publicUrl'); // Use the public URL as needed
+
+    // Optionally, you can update the database with the public URL if needed
+    // await Supabase.instance.client
+    //     .from('profiles')
+    //     .update({fileName.toLowerCase(): publicUrl}).eq('workerpin', workerPin);
+
+    // Update the state to reflect the upload
+    setState(() {
+      if (documentType == 'ID') isIdUploaded = true;
+      if (documentType == 'Address') isAddressUploaded = true;
+      if (documentType == 'Qualifications') isQualificationsUploaded = true;
+      if (documentType == 'Bank') isBankConfirmationUploaded = true;
+      if (documentType == 'Medical') isMedicalUploaded = true;
+    });
   }
 
   Future<File> _createTempFile(Uint8List bytes, String fileName) async {
@@ -85,19 +97,6 @@ class UploadDocumentsState extends State<UploadDocuments> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Upload Documents'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () async {
-              await _authService.signOut();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => LoginPage(onTap: () {})),
-              );
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -108,93 +107,55 @@ class UploadDocumentsState extends State<UploadDocuments> {
               value: isIdUploaded,
               onChanged: null,
               controlAffinity: ListTileControlAffinity.leading,
-              secondary: UploadButtonButton(
-                onTap: isIdUploaded ? null : () => uploadDocument('ID'),
-                text: 'Upload',
+              secondary: ElevatedButton(
+                onPressed: isIdUploaded ? null : () => uploadDocument('ID'),
+                child: Text('Upload ID'),
               ),
             ),
-            const SizedBox(height: 10),
             CheckboxListTile(
               title: Text('Proof of Address'),
               value: isAddressUploaded,
               onChanged: null,
               controlAffinity: ListTileControlAffinity.leading,
-              secondary: UploadButtonButton(
-                onTap:
+              secondary: ElevatedButton(
+                onPressed:
                     isAddressUploaded ? null : () => uploadDocument('Address'),
-                text: 'Upload',
+                child: Text('Upload Address'),
               ),
             ),
-            const SizedBox(height: 10),
             CheckboxListTile(
               title: Text('Qualifications'),
               value: isQualificationsUploaded,
               onChanged: null,
               controlAffinity: ListTileControlAffinity.leading,
-              secondary: UploadButtonButton(
-                onTap: isQualificationsUploaded
+              secondary: ElevatedButton(
+                onPressed: isQualificationsUploaded
                     ? null
                     : () => uploadDocument('Qualifications'),
-                text: 'Upload',
+                child: Text('Upload Qualifications'),
               ),
             ),
-            // const SizedBox(height: 10),
-            // CheckboxListTile(
-            //   title: Text('EEA1 Form'),
-            //   value: isEEA1Uploaded,
-            //   onChanged: null,
-            //   controlAffinity: ListTileControlAffinity.leading,
-            //   secondary: UploadButtonButton(
-            //     onTap: isEEA1Uploaded ? null : () => uploadDocument('EEA1'),
-            //     text: 'Upload',
-            //   ),
-            // ),
-            const SizedBox(height: 10),
             CheckboxListTile(
               title: Text('Bank Confirmation'),
               value: isBankConfirmationUploaded,
               onChanged: null,
               controlAffinity: ListTileControlAffinity.leading,
-              secondary: UploadButtonButton(
-                onTap: isBankConfirmationUploaded
+              secondary: ElevatedButton(
+                onPressed: isBankConfirmationUploaded
                     ? null
                     : () => uploadDocument('Bank'),
-                text: 'Upload',
+                child: Text('Upload Bank Confirmation'),
               ),
             ),
-            const SizedBox(height: 10),
             CheckboxListTile(
-              title: Text('Medical Certificate'),
+              title: Text('Medical Records'),
               value: isMedicalUploaded,
               onChanged: null,
               controlAffinity: ListTileControlAffinity.leading,
-              secondary: UploadButtonButton(
-                onTap:
+              secondary: ElevatedButton(
+                onPressed:
                     isMedicalUploaded ? null : () => uploadDocument('Medical'),
-                text: 'Upload',
-              ),
-            ),
-            // Removed the "all documents uploaded" condition
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to Localacceptance page
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Localacceptance()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                backgroundColor: Color(0xffe6cf8c),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                elevation: 0, // Removes shadow
-              ),
-              child: Text(
-                'Proceed to Local Acceptance',
-                style: TextStyle(color: Colors.black),
+                child: Text('Upload Medical Records'),
               ),
             ),
           ],
