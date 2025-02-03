@@ -1,41 +1,77 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'package:flutter/services.dart' show ByteData, Uint8List, rootBundle;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 class Localcontract extends StatefulWidget {
-  const Localcontract({super.key});
+  final String workerPin;
+
+  const Localcontract({required this.workerPin, super.key});
 
   @override
   State<Localcontract> createState() => _LocalcontractState();
 }
 
 class _LocalcontractState extends State<Localcontract> {
-  String? pdfFilePath;
+  String? textContent;
+  final String bucketName = 'profiles';
 
   @override
   void initState() {
     super.initState();
-    loadPdfFromAssets();
+    print(
+        'Initializing fetch for worker pin: ${widget.workerPin}'); // Debug message
+    if (widget.workerPin.isNotEmpty) {
+      fetchContractFile(widget.workerPin);
+    } else {
+      print('Worker pin is empty, cannot fetch file'); // Debug message
+      setState(() {
+        textContent = 'Worker pin is empty. Cannot fetch contract.';
+      });
+    }
   }
 
-  Future<void> loadPdfFromAssets() async {
+  Future<void> fetchContractFile(String workerPin) async {
+    final storage = Supabase.instance.client.storage.from(bucketName);
+    final storagePath = 'uploads/$workerPin/';
+
     try {
-      // Load PDF from assets
-      ByteData data = await rootBundle.load('assets/local.pdf');
-      Uint8List bytes = data.buffer.asUint8List();
+      print('Fetching files from path: $storagePath'); // Debug message
+      // List all files in the worker's directory
+      final files = await storage.list(path: storagePath);
+      print('Found ${files.length} files in the directory.'); // Debug message
 
-      // Save to a temporary file
+      // Find the first .txt file in the directory
+      final matchingFile = files.firstWhere(
+        (file) => file.name.endsWith('.txt'),
+        orElse: () => throw Exception('No text file found for the worker pin'),
+      );
+
+      print('Found text file: ${matchingFile.name}'); // Debug message
+
+      // Download the file content
+      final fileData =
+          await storage.download('$storagePath${matchingFile.name}');
+      print('Downloaded ${matchingFile.name} successfully.'); // Debug message
+
+      // Save the file locally
       final tempDir = await getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/local.pdf');
-      await tempFile.writeAsBytes(bytes);
+      final file = File('${tempDir.path}/${matchingFile.name}');
+      await file.writeAsBytes(fileData);
 
+      print('File saved locally at: ${file.path}'); // Debug message
+
+      // Read and display the text file content
       setState(() {
-        pdfFilePath = tempFile.path;
+        textContent = file.readAsStringSync();
       });
     } catch (e) {
-      debugPrint("Error loading PDF: $e");
+      print('Error fetching file: $e'); // Debug message for error
+      setState(() {
+        textContent = 'Failed to fetch contract file.';
+      });
     }
   }
 
@@ -45,16 +81,14 @@ class _LocalcontractState extends State<Localcontract> {
       appBar: AppBar(
         title: const Text('Contract'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: pdfFilePath != null
-                ? PDFView(
-                    filePath: pdfFilePath,
-                  )
-                : const Center(child: CircularProgressIndicator()),
-          ),
-        ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0), // Add margin around the content
+        child: SingleChildScrollView(
+          // Enable scrolling
+          child: textContent != null
+              ? Center(child: Text(textContent!))
+              : const Center(child: CircularProgressIndicator()),
+        ),
       ),
     );
   }

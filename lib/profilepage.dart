@@ -34,8 +34,8 @@ class ProfilePageState extends State<ProfilePage> {
   final TextEditingController _saidController = TextEditingController();
   String? _selectedRaceGender; // Variable to hold the selected value
   final List<String> _raceGenders = [
-    'Select Race and Gender'
-        'African Male',
+    'Select Race and Gender',
+    'African Male',
     'African Female',
     'Asian Male',
     'Asian Female',
@@ -658,24 +658,33 @@ class ProfilePageState extends State<ProfilePage> {
                                     SizedBox(height: 10),
                                     ElevatedButton(
                                       onPressed: () {
+                                        final workerPin =
+                                            _workerpinController.text.trim();
+                                        if (workerPin.isEmpty) {
+                                          _showErrorSnackBar(
+                                              'Please enter your Worker PIN before proceeding.');
+                                          return;
+                                        }
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (context) =>
-                                                  Localcontract()),
+                                            builder: (context) => Localcontract(
+                                                workerPin: workerPin),
+                                          ),
                                         );
                                       },
                                       style: ElevatedButton.styleFrom(
                                         padding: EdgeInsets.symmetric(
                                             horizontal: 10, vertical: 10),
-                                        backgroundColor: Color(0xffe6cf8c),
+                                        backgroundColor:
+                                            const Color(0xffe6cf8c),
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(6),
                                         ),
                                         elevation: 0,
                                       ),
-                                      child: Text(
+                                      child: const Text(
                                         'View Contract',
                                         style: TextStyle(
                                           color: Colors.black,
