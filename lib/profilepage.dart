@@ -727,7 +727,7 @@ class ProfilePageState extends State<ProfilePage> {
                             height:
                                 20), // Space between TextField and acceptance text
                         Text(
-                          '1. I accept the Policies and procedures.\n2. I accept the Contract.',
+                          '1. I accept the Policies and Procedures.\n2. I accept the Contract.',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.black, // Text color
@@ -754,17 +754,39 @@ class ProfilePageState extends State<ProfilePage> {
                                   .eq('workerpin', workerPin)
                                   .single();
 
-                              // Check if the worker pin exists
-                              // Proceed with the update
-                              await Supabase.instance.client
-                                  .from('profiles')
-                                  .update({
-                                'acceptance':
-                                    formattedDateTime, // Update the acceptance time
-                              }).eq('workerpin', workerPin);
+                              // ignore: unnecessary_null_comparison
+                              if (response != null) {
+                                // Proceed with the update
+                                await Supabase.instance.client
+                                    .from('profiles')
+                                    .update({
+                                  'acceptance':
+                                      formattedDateTime, // Update the acceptance time
+                                }).eq('workerpin', workerPin);
 
-                              // Print confirmation
-                              print('Acceptance time confirmed!');
+                                // Print confirmation
+                                print('Acceptance time confirmed!');
+
+                                // Show confirmation pop-up
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('Confirmation'),
+                                      content: Text(
+                                          'You have successfully accepted the Policies and Procedures as well as the contract.'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('OK'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.symmetric(
