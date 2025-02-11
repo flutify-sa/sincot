@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:sincot/authservice.dart';
@@ -44,6 +44,14 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  void showSnackBarMessage(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
+  }
+
   Future<void> register() async {
     if (_isLoading) return;
 
@@ -57,51 +65,26 @@ class _RegisterPageState extends State<RegisterPage> {
 
     // Validation checks
     if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('All fields are required')),
-        );
-      }
-      safeSetState(() {
-        _isLoading = false;
-      });
+      showSnackBarMessage('All fields are required');
+      safeSetState(() => _isLoading = false);
       return;
     }
 
-    if (!RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+$").hasMatch(email)) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invalid email format')),
-        );
-      }
-      safeSetState(() {
-        _isLoading = false;
-      });
+    if (!RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+").hasMatch(email)) {
+      showSnackBarMessage('Invalid email format');
+      safeSetState(() => _isLoading = false);
       return;
     }
 
     if (password != confirmPassword) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Passwords do not match')),
-        );
-      }
-      safeSetState(() {
-        _isLoading = false;
-      });
+      showSnackBarMessage('Passwords do not match');
+      safeSetState(() => _isLoading = false);
       return;
     }
 
     if (password.length < 6) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Password must be at least 6 characters long')),
-        );
-      }
-      safeSetState(() {
-        _isLoading = false;
-      });
+      showSnackBarMessage('Password must be at least 6 characters long');
+      safeSetState(() => _isLoading = false);
       return;
     }
 
@@ -122,45 +105,24 @@ class _RegisterPageState extends State<RegisterPage> {
         if (insertResponse.error != null) {
           print(
               'Error inserting into profiles table: ${insertResponse.error!.message}');
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to save profile data')),
-            );
-          }
+          showSnackBarMessage('Failed to save profile data');
         } else {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Registration Successful')),
-            );
-            if (!_isDisposed) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => LoginPage(onTap: () {})),
-              );
-            }
-          }
+          showSnackBarMessage('Registration Successful');
           emailController.clear();
           passwordController.clear();
           confirmPasswordController.clear();
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Registration failed')),
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage(onTap: () {})),
           );
         }
+      } else {
+        showSnackBarMessage('Registration failed');
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
+      showSnackBarMessage('Error: $e');
     } finally {
-      safeSetState(() {
-        _isLoading = false;
-      });
+      safeSetState(() => _isLoading = false);
     }
   }
 
@@ -191,36 +153,33 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 10),
               MyTextField(
                 controller: passwordController,
-                hintText: 'Password',
+                hintText: 'Portal Pin',
                 obscuretext: _obscurePassword,
                 suffixIcon: IconButton(
                   icon: Icon(
                     _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                    color: Colors.black,
+                    color: Colors.white,
                   ),
                   onPressed: () {
-                    safeSetState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
+                    safeSetState(() => _obscurePassword = !_obscurePassword);
                   },
                 ),
               ),
               const SizedBox(height: 10),
               MyTextField(
                 controller: confirmPasswordController,
-                hintText: 'Confirm Password',
+                hintText: 'Confirm Portal Pin',
                 obscuretext: _obscureConfirmPassword,
                 suffixIcon: IconButton(
                   icon: Icon(
                     _obscureConfirmPassword
                         ? Icons.visibility
                         : Icons.visibility_off,
-                    color: Colors.black,
+                    color: Colors.white,
                   ),
                   onPressed: () {
-                    safeSetState(() {
-                      _obscureConfirmPassword = !_obscureConfirmPassword;
-                    });
+                    safeSetState(() =>
+                        _obscureConfirmPassword = !_obscureConfirmPassword);
                   },
                 ),
               ),
@@ -240,14 +199,12 @@ class _RegisterPageState extends State<RegisterPage> {
                   const SizedBox(width: 3),
                   GestureDetector(
                     onTap: () {
-                      if (!_isDisposed) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => LoginPage(onTap: () {}),
-                          ),
-                        );
-                      }
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginPage(onTap: () {}),
+                        ),
+                      );
                     },
                     child: Text(
                       ' Sign in here',

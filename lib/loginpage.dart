@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (context) => ProfilePage()),
         );
       } else {
-        throw Exception('Invalid email or password.');
+        throw Exception('Invalid email or Portal Pin.');
       }
     } catch (e) {
       print('Login failed: $e');
@@ -82,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
               // Password TextField with toggle visibility
               MyTextField(
                 controller: passwordController,
-                hintText: 'Password',
+                hintText: 'Portal Pin',
                 obscuretext: _obscureText,
                 suffixIcon: IconButton(
                   icon: Icon(
