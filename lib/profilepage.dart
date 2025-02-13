@@ -204,12 +204,13 @@ class ProfilePageState extends State<ProfilePage> {
   }
 
   void _launchWhatsApp(String message) async {
-    final phoneNumber = '1234567890'; // Hard-coded phone number
-    final url = Uri.parse(
+    final phoneNumber = '+27784420176';
+    final Uri url = Uri.parse(
         'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}');
 
+    // Use canLaunchUrl and launchUrl
     if (await canLaunchUrl(url)) {
-      await launchUrl(url);
+      await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
       _showErrorSnackBar('Could not launch WhatsApp');
     }
@@ -246,11 +247,14 @@ class ProfilePageState extends State<ProfilePage> {
                 TextField(
                   controller: _messageController, // Assign the controller
                   decoration: InputDecoration(
-                    labelText: 'Enter your message',
+                    labelText: 'Enter message,\nthen press whatsapp button',
                     labelStyle: TextStyle(color: Color(0xffe6cf8c)),
                     border: OutlineInputBorder(),
                   ),
                   style: TextStyle(color: Colors.white),
+                ),
+                SizedBox(
+                  height: 15,
                 ),
                 Text(
                   'Fill in ALL the fields below.',
