@@ -36,7 +36,7 @@ class ProfileMyTextField extends StatelessWidget {
             ),
           ),
           hintText: hintText,
-          hintStyle: TextStyle(color: Colors.grey.shade800), // Hint text color
+          hintStyle: TextStyle(color: Colors.white), // Hint text color
         ),
       ),
     );

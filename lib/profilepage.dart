@@ -4,6 +4,7 @@ import 'package:sincot/localcontract.dart';
 import 'package:sincot/uploaddocuments.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sincot/localacceptance.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -63,11 +64,30 @@ class ProfilePageState extends State<ProfilePage> {
   final _formKey = GlobalKey<FormState>();
   final SupabaseClient supabase = Supabase.instance.client;
   bool _isLoading = false;
+  bool _isButtonEnabled =
+      true; // State variable to control button enabled state
+
+  @override
+  void initState() {
+    super.initState();
+    _loadButtonState(); // Load button state when the widget is initialized
+  }
+
+  Future<void> _loadButtonState() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isButtonEnabled = prefs.getBool('isButtonEnabled') ??
+          true; // Default to true if not set
+    });
+  }
 
   Future<void> _saveProfileToSupabase() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _isButtonEnabled = false; // Disable the button when saving
+    });
 
     try {
       final user = supabase.auth.currentUser;
@@ -143,6 +163,17 @@ class ProfilePageState extends State<ProfilePage> {
       // Log success without checking for errors
       print('Success: ${response.data}');
       _showSuccessSnackBar('Profile updated successfully!');
+
+      // Save the button state to shared preferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(
+          'isButtonEnabled', false); // Save the button as disabled
+
+      // Redirect to UploadDocuments page after saving
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => UploadDocuments()),
+      );
     } on PostgrestException catch (e) {
       print('Postgrest Error: ${e.message}');
       _showErrorSnackBar('Supabase error: ${e.message}');
@@ -151,7 +182,10 @@ class ProfilePageState extends State<ProfilePage> {
       print('Stack Trace: $stackTrace');
       _showErrorSnackBar('An unexpected error occurred: $e');
     } finally {
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+        // Optionally, you can keep the button disabled here if needed
+      });
     }
   }
 
@@ -193,17 +227,19 @@ class ProfilePageState extends State<ProfilePage> {
                       color: Color(0xffe6cf8c)),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 25),
                 TextFormField(
                   controller: _nameController,
                   decoration: InputDecoration(
-                    labelText: 'Enter your Name',
+                    hintText: 'Enter your Name',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(
+                    fontSize: 14,
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your name';
@@ -215,13 +251,13 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _surnameController,
                   decoration: InputDecoration(
-                    labelText: 'Enter your Surname',
+                    hintText: 'Enter your Surname',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your surname';
@@ -260,13 +296,13 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _mobileController,
                   decoration: InputDecoration(
-                    labelText: 'Enter your Mobile Number',
+                    hintText: 'Enter your Mobile Number',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                   keyboardType: TextInputType.phone,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -282,13 +318,13 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _addressControllerStreet,
                   decoration: InputDecoration(
-                    labelText: 'Street Address',
+                    hintText: 'Street Address',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your street address';
@@ -300,13 +336,13 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _addressControllerTown,
                   decoration: InputDecoration(
-                    labelText: 'Town',
+                    hintText: 'Town',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your town';
@@ -318,13 +354,13 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _addressControllerCode,
                   decoration: InputDecoration(
-                    labelText: 'Postal Code',
+                    hintText: 'Postal Code',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your postal code';
@@ -336,13 +372,13 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _bankDetailsControllerBank,
                   decoration: InputDecoration(
-                    labelText: 'Bank Name',
+                    hintText: 'Bank Name',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your bank name';
@@ -354,13 +390,13 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _bankDetailsControllerAccount,
                   decoration: InputDecoration(
-                    labelText: 'Account Number',
+                    hintText: 'Account Number',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your account number';
@@ -372,13 +408,13 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _bankDetailsControllerType,
                   decoration: InputDecoration(
-                    labelText: 'Account Type',
+                    hintText: 'Account Type',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your account type';
@@ -390,13 +426,13 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _nextOfKinController,
                   decoration: InputDecoration(
-                    labelText: 'Spouse',
+                    hintText: 'Spouse',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter spouse details';
@@ -408,13 +444,13 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _fatherinlaw,
                   decoration: InputDecoration(
-                    labelText: 'Father In Law',
+                    hintText: 'Father In Law',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter Father in law details';
@@ -426,13 +462,13 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _motherinlaw,
                   decoration: InputDecoration(
-                    labelText: 'Mother In Law',
+                    hintText: 'Mother In Law',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter Mother in law details';
@@ -444,13 +480,13 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _saidController,
                   decoration: InputDecoration(
-                    labelText: 'ID Number',
+                    hintText: 'ID Number',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your ID number';
@@ -465,13 +501,13 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _workerpinController,
                   decoration: InputDecoration(
-                    labelText: 'Worker PIN',
+                    hintText: 'Worker PIN',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your worker PIN';
@@ -483,49 +519,49 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _childrenNamesController1,
                   decoration: InputDecoration(
-                    labelText: 'Child 1 Name',
+                    hintText: 'Child 1 Name',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                 ),
                 SizedBox(height: 16),
                 TextFormField(
                   controller: _childrenNamesController2,
                   decoration: InputDecoration(
-                    labelText: 'Child 2 Name',
+                    hintText: 'Child 2 Name',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                 ),
                 SizedBox(height: 16),
                 TextFormField(
                   controller: _childrenNamesController3,
                   decoration: InputDecoration(
-                    labelText: 'Child 3 Name',
+                    hintText: 'Child 3 Name',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                 ),
                 SizedBox(height: 16),
                 TextFormField(
                   controller: _parentDetailsController1,
                   decoration: InputDecoration(
-                    labelText: 'Parent 1 Name',
+                    hintText: 'Parent 1 Name',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter the name of the first parent';
@@ -537,25 +573,25 @@ class ProfilePageState extends State<ProfilePage> {
                 TextFormField(
                   controller: _parentDetailsController2,
                   decoration: InputDecoration(
-                    labelText: 'Parent 2 Name',
+                    hintText: 'Parent 2 Name',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                 ),
                 SizedBox(height: 16),
                 TextFormField(
                   controller: _immediatefamily,
                   decoration: InputDecoration(
-                    labelText: 'Immediate Family',
+                    hintText: 'Immediate Family',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8))),
                     fillColor: Color(0xffe6cf8c),
                     filled: true,
                   ),
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 14),
                 ),
                 SizedBox(height: 20),
                 _isLoading
@@ -576,11 +612,12 @@ class ProfilePageState extends State<ProfilePage> {
                               child: Padding(
                                 padding: const EdgeInsets.all(
                                     16.0), // Padding inside the card
-
                                 child: Column(
                                   children: [
                                     ElevatedButton(
-                                      onPressed: _saveProfileToSupabase,
+                                      onPressed: _isButtonEnabled
+                                          ? _saveProfileToSupabase
+                                          : null, // Disable if not enabled
                                       style: ElevatedButton.styleFrom(
                                         padding: EdgeInsets.symmetric(
                                             horizontal: 10, vertical: 10),
@@ -595,7 +632,7 @@ class ProfilePageState extends State<ProfilePage> {
                                         'Save Info',
                                         style: TextStyle(
                                           color: Colors.black,
-                                          fontSize: 12,
+                                          fontSize: 14,
                                         ),
                                       ),
                                     ),
@@ -623,7 +660,7 @@ class ProfilePageState extends State<ProfilePage> {
                                         'Upload Documents',
                                         style: TextStyle(
                                           color: Colors.black,
-                                          fontSize: 12,
+                                          fontSize: 14,
                                         ),
                                       ),
                                     ),
@@ -651,7 +688,7 @@ class ProfilePageState extends State<ProfilePage> {
                                         'View Policies and Procedures',
                                         style: TextStyle(
                                           color: Colors.black,
-                                          fontSize: 12,
+                                          fontSize: 14,
                                         ),
                                       ),
                                     ),
@@ -688,7 +725,7 @@ class ProfilePageState extends State<ProfilePage> {
                                         'View Contract',
                                         style: TextStyle(
                                           color: Colors.black,
-                                          fontSize: 12,
+                                          fontSize: 14,
                                         ),
                                       ),
                                     ),
@@ -718,7 +755,7 @@ class ProfilePageState extends State<ProfilePage> {
                         TextField(
                           controller: _workerpinController,
                           decoration: InputDecoration(
-                            labelText: 'Enter your Worker Pin',
+                            hintText: 'Enter your Worker Pin',
                             border: OutlineInputBorder(),
                           ),
                           obscureText: true, // Hide the pin input
