@@ -15,6 +15,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class ProfilePageState extends State<ProfilePage> {
+  final TextEditingController _messageController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _surnameController = TextEditingController();
@@ -202,9 +203,8 @@ class ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void _launchWhatsApp() async {
-    final phoneNumber = '1234567890'; // Replace with the desired phone number
-    final message = 'Hello, I need assistance!'; // Replace with your message
+  void _launchWhatsApp(String message) async {
+    final phoneNumber = '1234567890'; // Hard-coded phone number
     final url = Uri.parse(
         'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}');
 
@@ -230,7 +230,8 @@ class ProfilePageState extends State<ProfilePage> {
             icon: Image.asset('assets/whatsapp.png',
                 width: 30, height: 30), // Use your WhatsApp icon image
             onPressed: () {
-              _launchWhatsApp(); // Call the method to launch WhatsApp
+              _launchWhatsApp(_messageController
+                  .text); // Pass the message from the text field
             },
           ),
         ],
@@ -242,6 +243,15 @@ class ProfilePageState extends State<ProfilePage> {
             key: _formKey,
             child: Column(
               children: [
+                TextField(
+                  controller: _messageController, // Assign the controller
+                  decoration: InputDecoration(
+                    labelText: 'Enter your message',
+                    labelStyle: TextStyle(color: Color(0xffe6cf8c)),
+                    border: OutlineInputBorder(),
+                  ),
+                  style: TextStyle(color: Colors.white),
+                ),
                 Text(
                   'Fill in ALL the fields below.',
                   style: TextStyle(
