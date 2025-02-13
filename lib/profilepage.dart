@@ -247,7 +247,7 @@ class ProfilePageState extends State<ProfilePage> {
                 TextField(
                   controller: _messageController, // Assign the controller
                   decoration: InputDecoration(
-                    labelText: 'Enter message,\nthen press whatsapp button',
+                    labelText: 'Enter message,\nthen press WhatsApp button',
                     labelStyle: TextStyle(color: Color(0xffe6cf8c)),
                     border: OutlineInputBorder(),
                   ),
