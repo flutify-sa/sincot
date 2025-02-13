@@ -5,6 +5,7 @@ import 'package:sincot/uploaddocuments.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sincot/localacceptance.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -201,6 +202,19 @@ class ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  void _launchWhatsApp() async {
+    final phoneNumber = '1234567890'; // Replace with the desired phone number
+    final message = 'Hello, I need assistance!'; // Replace with your message
+    final url = Uri.parse(
+        'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}');
+
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      _showErrorSnackBar('Could not launch WhatsApp');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -211,6 +225,15 @@ class ProfilePageState extends State<ProfilePage> {
           'Edit Profile',
           style: TextStyle(color: Color(0xffe6cf8c)),
         ),
+        actions: [
+          IconButton(
+            icon: Image.asset('assets/whatsapp.png',
+                width: 30, height: 30), // Use your WhatsApp icon image
+            onPressed: () {
+              _launchWhatsApp(); // Call the method to launch WhatsApp
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
