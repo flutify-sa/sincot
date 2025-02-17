@@ -204,7 +204,7 @@ class ProfilePageState extends State<ProfilePage> {
   }
 
   void _launchWhatsApp(String message) async {
-    final phoneNumber = '+27784420176';
+    final phoneNumber = '+27632616407';
     final Uri url = Uri.parse(
         'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}');
 
