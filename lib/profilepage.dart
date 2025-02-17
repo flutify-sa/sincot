@@ -244,11 +244,20 @@ class ProfilePageState extends State<ProfilePage> {
             key: _formKey,
             child: Column(
               children: [
+                Text(
+                  "1.Add 0632616407' to Whatsapp\n2.Enter message\n3.Press WhatsApp button to send message.",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white, // Color for the hint text
+                  ),
+                ),
+                SizedBox(height: 8), // Space between the hint and the TextField
+
                 TextField(
                   controller: _messageController, // Assign the controller
                   decoration: InputDecoration(
-                    labelText: 'Enter message,\nthen press WhatsApp button',
-                    labelStyle: TextStyle(color: Color(0xffe6cf8c)),
+                    hintText: 'Enter message',
+                    hintStyle: TextStyle(color: Colors.white),
                     border: OutlineInputBorder(),
                   ),
                   style: TextStyle(color: Colors.white),
