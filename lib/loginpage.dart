@@ -1,11 +1,14 @@
+// login_page.dart
 // ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'package:sincot/authservice.dart';
 import 'package:sincot/mybutton.dart';
 import 'package:sincot/mytextfield.dart';
 import 'package:flutter/material.dart';
-import 'package:sincot/profilepage.dart';
+import 'package:sincot/profilepage.dart'; // Fixed to match refactored structure
 import 'package:sincot/registerpage.dart';
+import 'package:sincot/uploaddocuments.dart';
+import 'package:sincot/profile_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
@@ -22,18 +25,18 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  bool _obscureText = true; // To control the visibility of the password
-  bool _rememberMe = false; // To track the "Remember Me" checkbox state
+  bool _obscureText = true;
+  bool _rememberMe = false;
 
   final Authservice _authService = Authservice();
+  final ProfileService _profileService = ProfileService();
 
   @override
   void initState() {
     super.initState();
-    _loadSavedCredentials(); // Load saved credentials when the page initializes
+    _loadSavedCredentials();
   }
 
-  // Load saved credentials from SharedPreferences
   Future<void> _loadSavedCredentials() async {
     final prefs = await SharedPreferences.getInstance();
     final savedEmail = prefs.getString('email');
@@ -44,12 +47,11 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         emailController.text = savedEmail;
         passwordController.text = savedPassword;
-        _rememberMe = true; // Set checkbox to checked if credentials were saved
+        _rememberMe = true;
       });
     }
   }
 
-  // Save credentials to SharedPreferences
   Future<void> _saveCredentials(String email, String password) async {
     final prefs = await SharedPreferences.getInstance();
     if (_rememberMe) {
@@ -57,14 +59,12 @@ class _LoginPageState extends State<LoginPage> {
       await prefs.setString('password', password);
       await prefs.setBool('rememberMe', true);
     } else {
-      // Clear saved credentials if "Remember Me" is unchecked
       await prefs.remove('email');
       await prefs.remove('password');
       await prefs.setBool('rememberMe', false);
     }
   }
 
-  // Login method
   Future<void> login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
@@ -75,12 +75,21 @@ class _LoginPageState extends State<LoginPage> {
 
       if (response?.session != null) {
         print('Login successful for user: ${response?.session?.user.email}');
-        await _saveCredentials(
-            email, password); // Save credentials if login is successful
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => ProfilePage()),
-        );
+        await _saveCredentials(email, password);
+
+        final bool isProfileSaved = await _profileService.loadProfileState();
+
+        if (isProfileSaved) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const UploadDocuments()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const ProfilePage()),
+          );
+        }
       } else {
         throw Exception('Invalid email or Portal Pin.');
       }
@@ -109,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20,
-                    color: Color(0xffe6cf8c), // Hex color code
+                    color: Color(0xffe6cf8c),
                   ),
                 ),
               ),
@@ -120,7 +129,6 @@ class _LoginPageState extends State<LoginPage> {
                 obscuretext: false,
               ),
               const SizedBox(height: 10),
-              // Password TextField with toggle visibility
               MyTextField(
                 controller: passwordController,
                 hintText: 'Portal Pin',
@@ -132,14 +140,12 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   onPressed: () {
                     setState(() {
-                      _obscureText =
-                          !_obscureText; // Toggle password visibility
+                      _obscureText = !_obscureText;
                     });
                   },
                 ),
               ),
               const SizedBox(height: 10),
-              // "Remember Me" Checkbox
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -161,7 +167,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 20),
               MyButton(onTap: login, text: 'Sign In'),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -182,8 +188,9 @@ class _LoginPageState extends State<LoginPage> {
                     child: Text(
                       'Register here',
                       style: TextStyle(
-                          color: Color(0xffe6cf8c),
-                          fontWeight: FontWeight.bold),
+                        color: Color(0xffe6cf8c),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -193,5 +200,12 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 }

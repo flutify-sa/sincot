@@ -1,4 +1,6 @@
 // profile_service.dart
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sincot/uploaddocuments.dart';
@@ -8,9 +10,19 @@ import 'profile_controllers.dart';
 class ProfileService {
   final SupabaseClient supabase = Supabase.instance.client;
 
+  // Check if profile is saved
   Future<bool> loadProfileState() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('isProfileSaved') ?? false;
+  }
+
+  // New method to get user progress (profile and document status)
+  Future<Map<String, bool>> getUserProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'isProfileSaved': prefs.getBool('isProfileSaved') ?? false,
+      'isDocumentsUploaded': prefs.getBool('isDocumentsUploaded') ?? false,
+    };
   }
 
   Future<void> saveProfileToSupabase({
@@ -88,7 +100,7 @@ class ProfileService {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => UploadDocuments()),
+        MaterialPageRoute(builder: (context) => const UploadDocuments()),
       );
     } finally {
       onLoadingChanged(false);
