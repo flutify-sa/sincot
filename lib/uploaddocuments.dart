@@ -1,9 +1,12 @@
+// uploaddocuments.dart
 // ignore_for_file: avoid_print, unused_local_variable, deprecated_member_use, use_build_context_synchronously
 
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sincot/dashboard_page.dart'; // Added import
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UploadDocuments extends StatefulWidget {
@@ -19,6 +22,43 @@ class UploadDocumentsState extends State<UploadDocuments> {
   bool isQualificationsUploaded = false;
   bool isBankConfirmationUploaded = false;
   bool isMedicalUploaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUploadStatus();
+  }
+
+  Future<void> _loadUploadStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isIdUploaded = prefs.getBool('isIdUploaded') ?? false;
+      isAddressUploaded = prefs.getBool('isAddressUploaded') ?? false;
+      isQualificationsUploaded =
+          prefs.getBool('isQualificationsUploaded') ?? false;
+      isBankConfirmationUploaded =
+          prefs.getBool('isBankConfirmationUploaded') ?? false;
+      isMedicalUploaded = prefs.getBool('isMedicalUploaded') ?? false;
+    });
+    _checkAllDocumentsUploaded();
+  }
+
+  void _checkAllDocumentsUploaded() async {
+    if (isIdUploaded &&
+        isAddressUploaded &&
+        isQualificationsUploaded &&
+        isBankConfirmationUploaded &&
+        isMedicalUploaded) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isDocumentsUploaded', true);
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const DashboardPage()),
+        );
+      }
+    }
+  }
 
   Future<void> uploadDocument(String documentType) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -57,40 +97,44 @@ class UploadDocumentsState extends State<UploadDocuments> {
       final storagePath = 'uploads/$workerPin/$fileName';
       final storage = Supabase.instance.client.storage.from('profiles');
 
-      // Upload the file to Supabase Storage
       await storage.upload(storagePath, tempFile);
 
-      // Get the public URL after successful upload
       final publicUrl = storage.getPublicUrl(storagePath);
       print('File uploaded successfully to: $publicUrl');
 
-      // Update the checkbox state only after successful upload
+      final prefs = await SharedPreferences.getInstance();
       setState(() {
         switch (documentType) {
           case 'ID':
             isIdUploaded = true;
+            prefs.setBool('isIdUploaded', true);
             break;
           case 'Address':
             isAddressUploaded = true;
+            prefs.setBool('isAddressUploaded', true);
             break;
           case 'Qualifications':
             isQualificationsUploaded = true;
+            prefs.setBool('isQualificationsUploaded', true);
             break;
           case 'Bank':
             isBankConfirmationUploaded = true;
+            prefs.setBool('isBankConfirmationUploaded', true);
             break;
           case 'Medical':
             isMedicalUploaded = true;
+            prefs.setBool('isMedicalUploaded', true);
             break;
         }
       });
+
+      _checkAllDocumentsUploaded();
     } catch (e) {
       print('Error uploading document: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to upload $documentType: $e')),
       );
     } finally {
-      // Clean up temporary file
       if (await tempFile.exists()) {
         await tempFile.delete();
       }
@@ -104,7 +148,6 @@ class UploadDocumentsState extends State<UploadDocuments> {
     return tempFile;
   }
 
-  // Custom button style with smaller text
   ButtonStyle customButtonStyle({bool isEnabled = true}) {
     return ElevatedButton.styleFrom(
       foregroundColor: Colors.white,
@@ -117,7 +160,7 @@ class UploadDocumentsState extends State<UploadDocuments> {
       elevation: isEnabled ? 4 : 0,
       shadowColor: Colors.black.withOpacity(0.2),
       textStyle: TextStyle(
-        fontSize: 12, // Reduced font size from 16 to 12
+        fontSize: 12,
         fontWeight: FontWeight.bold,
       ),
     );
@@ -126,9 +169,9 @@ class UploadDocumentsState extends State<UploadDocuments> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[900], // Match ProfilePage background
+      backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        backgroundColor: (Color(0xffe6cf8c)),
+        backgroundColor: Color(0xffe6cf8c),
         title: Text(
           'Upload Documents',
           style: TextStyle(color: Colors.black),
@@ -204,25 +247,26 @@ class UploadDocumentsState extends State<UploadDocuments> {
         children: [
           Checkbox(
             value: isUploaded,
-            onChanged: null, // Read-only checkbox, updated via upload success
+            onChanged: null,
             activeColor: Color(0xffe6cf8c),
             checkColor: Colors.black,
           ),
           SizedBox(width: 12),
           Expanded(
-            // Button takes up remaining space
-            child: ElevatedButton(
-              onPressed: isUploaded ? null : onUpload,
-              style: customButtonStyle(isEnabled: !isUploaded),
-              child: Text(
-                buttonText,
-                style: TextStyle(
-                  color: isUploaded ? Colors.grey[600] : Colors.black,
-                ),
-                overflow:
-                    TextOverflow.ellipsis, // Truncates button text if too long
-              ),
-            ),
+            child: isUploaded
+                ? Text(
+                    '$buttonText Uploaded',
+                    style: TextStyle(color: Colors.grey[600]),
+                  )
+                : ElevatedButton(
+                    onPressed: onUpload,
+                    style: customButtonStyle(isEnabled: true),
+                    child: Text(
+                      buttonText,
+                      style: TextStyle(color: Colors.black),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
           ),
         ],
       ),

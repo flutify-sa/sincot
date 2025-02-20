@@ -1,93 +1,56 @@
-// ignore_for_file: avoid_print
+// localcontract.dart
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sincot/dashboard_page.dart'; // Navigate to DashboardPage after viewing
 
-class Localcontract extends StatefulWidget {
+class Localcontract extends StatelessWidget {
   final String workerPin;
 
-  const Localcontract({required this.workerPin, super.key});
+  const Localcontract({super.key, required this.workerPin});
 
-  @override
-  State<Localcontract> createState() => _LocalcontractState();
-}
-
-class _LocalcontractState extends State<Localcontract> {
-  String? textContent;
-  final String bucketName = 'profiles';
-
-  @override
-  void initState() {
-    super.initState();
-    print(
-        'Initializing fetch for worker pin: ${widget.workerPin}'); // Debug message
-    if (widget.workerPin.isNotEmpty) {
-      fetchContractFile(widget.workerPin);
-    } else {
-      print('Worker pin is empty, cannot fetch file'); // Debug message
-      setState(() {
-        textContent = 'Worker pin is empty. Cannot fetch contract.';
-      });
-    }
-  }
-
-  Future<void> fetchContractFile(String workerPin) async {
-    final storage = Supabase.instance.client.storage.from(bucketName);
-    final storagePath = 'uploads/$workerPin/';
-
-    try {
-      print('Fetching files from path: $storagePath'); // Debug message
-      // List all files in the worker's directory
-      final files = await storage.list(path: storagePath);
-      print('Found ${files.length} files in the directory.'); // Debug message
-
-      // Find the first .txt file in the directory
-      final matchingFile = files.firstWhere(
-        (file) => file.name.endsWith('.txt'),
-        orElse: () => throw Exception('No text file found for the worker pin'),
-      );
-
-      print('Found text file: ${matchingFile.name}'); // Debug message
-
-      // Download the file content
-      final fileData =
-          await storage.download('$storagePath${matchingFile.name}');
-      print('Downloaded ${matchingFile.name} successfully.'); // Debug message
-
-      // Save the file locally
-      final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/${matchingFile.name}');
-      await file.writeAsBytes(fileData);
-
-      print('File saved locally at: ${file.path}'); // Debug message
-
-      // Read and display the text file content
-      setState(() {
-        textContent = file.readAsStringSync();
-      });
-    } catch (e) {
-      print('Error fetching file: $e'); // Debug message for error
-      setState(() {
-        textContent = 'Failed to fetch contract file.';
-      });
-    }
+  Future<void> _markContractViewed(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isContractViewed', true);
+    // Navigate to DashboardPage (or back to ProfilePage)
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const DashboardPage()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: const Text('Contract'),
+        backgroundColor: const Color(0xffe6cf8c),
+        title: const Text('Contract', style: TextStyle(color: Colors.black)),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0), // Add margin around the content
-        child: SingleChildScrollView(
-          // Enable scrolling
-          child: textContent != null
-              ? Center(child: Text(textContent!))
-              : const Center(child: CircularProgressIndicator()),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Contract for Worker PIN: $workerPin',
+              style: const TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'This is a placeholder for the contract content.',
+              style: TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => _markContractViewed(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xffe6cf8c),
+              ),
+              child: const Text('Acknowledge Contract',
+                  style: TextStyle(color: Colors.black)),
+            ),
+          ],
         ),
       ),
     );

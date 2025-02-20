@@ -17,11 +17,13 @@ class ProfileService {
   }
 
   // New method to get user progress (profile and document status)
+// profile_service.dart (snippet)
   Future<Map<String, bool>> getUserProgress() async {
     final prefs = await SharedPreferences.getInstance();
     return {
       'isProfileSaved': prefs.getBool('isProfileSaved') ?? false,
       'isDocumentsUploaded': prefs.getBool('isDocumentsUploaded') ?? false,
+      'isContractViewed': prefs.getBool('isContractViewed') ?? false,
     };
   }
 

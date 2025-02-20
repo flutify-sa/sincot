@@ -5,10 +5,11 @@ import 'package:sincot/authservice.dart';
 import 'package:sincot/mybutton.dart';
 import 'package:sincot/mytextfield.dart';
 import 'package:flutter/material.dart';
-import 'package:sincot/profilepage.dart'; // Fixed to match refactored structure
+import 'package:sincot/profilepage.dart'; // Fixed import (was profilepage.dart)
 import 'package:sincot/registerpage.dart';
 import 'package:sincot/uploaddocuments.dart';
 import 'package:sincot/profile_service.dart';
+import 'package:sincot/dashboard_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
@@ -77,17 +78,32 @@ class _LoginPageState extends State<LoginPage> {
         print('Login successful for user: ${response?.session?.user.email}');
         await _saveCredentials(email, password);
 
-        final bool isProfileSaved = await _profileService.loadProfileState();
+        // Get user progress from ProfileService
+        final progress = await _profileService.getUserProgress();
+        final bool isProfileSaved = progress['isProfileSaved']!;
+        final bool isDocumentsUploaded = progress['isDocumentsUploaded']!;
+        final bool isContractViewed = progress['isContractViewed']!;
 
-        if (isProfileSaved) {
+        // Navigation logic
+        if (!isProfileSaved) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const ProfilePage()),
+          );
+        } else if (isProfileSaved && !isDocumentsUploaded) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const UploadDocuments()),
           );
-        } else {
+        } else if (isProfileSaved && isDocumentsUploaded && !isContractViewed) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const ProfilePage()),
+          );
+        } else if (isProfileSaved && isDocumentsUploaded && isContractViewed) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const DashboardPage()),
           );
         }
       } else {

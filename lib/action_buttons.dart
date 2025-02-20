@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:sincot/localcontract.dart';
 import 'package:sincot/uploaddocuments.dart';
 import 'package:sincot/localacceptance.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ActionButtons extends StatelessWidget {
+class ActionButtons extends StatefulWidget {
+  // Changed to StatefulWidget
   final bool isProfileSaved;
   final VoidCallback onSave;
   final String workerPin;
@@ -17,63 +19,87 @@ class ActionButtons extends StatelessWidget {
   });
 
   @override
+  State<ActionButtons> createState() => _ActionButtonsState();
+}
+
+class _ActionButtonsState extends State<ActionButtons> {
+  bool _isContractViewed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadContractViewedStatus();
+  }
+
+  Future<void> _loadContractViewedStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isContractViewed = prefs.getBool('isContractViewed') ?? false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Card(
-        margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+        margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
         color: Colors.grey.shade700,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              if (!isProfileSaved)
+              if (!widget.isProfileSaved)
                 ElevatedButton(
-                  onPressed: onSave,
+                  onPressed: widget.onSave,
                   style: _buttonStyle(),
-                  child: Text('Save Info',
+                  child: const Text('Save Info',
                       style: TextStyle(color: Colors.black, fontSize: 14)),
                 ),
-              if (!isProfileSaved) SizedBox(height: 10),
+              if (!widget.isProfileSaved) const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => UploadDocuments()),
-                  );
-                },
-                style: _buttonStyle(),
-                child: Text('Upload Documents',
-                    style: TextStyle(color: Colors.black, fontSize: 14)),
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Localacceptance()),
-                  );
-                },
-                style: _buttonStyle(),
-                child: Text('View Policies and Procedures',
-                    style: TextStyle(color: Colors.black, fontSize: 14)),
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  if (workerPin.isEmpty) return;
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            Localcontract(workerPin: workerPin)),
+                        builder: (context) => const UploadDocuments()),
                   );
                 },
                 style: _buttonStyle(),
-                child: Text('View Contract',
+                child: const Text('Upload Documents',
                     style: TextStyle(color: Colors.black, fontSize: 14)),
               ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const Localacceptance()),
+                  );
+                },
+                style: _buttonStyle(),
+                child: const Text('View Policies and Procedures',
+                    style: TextStyle(color: Colors.black, fontSize: 14)),
+              ),
+              const SizedBox(height: 10),
+              if (!_isContractViewed &&
+                  widget.workerPin.isNotEmpty) // Only show if not viewed
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            Localcontract(workerPin: widget.workerPin),
+                      ),
+                    );
+                  },
+                  style: _buttonStyle(),
+                  child: const Text('View Contract',
+                      style: TextStyle(color: Colors.black, fontSize: 14)),
+                ),
             ],
           ),
         ),
@@ -83,8 +109,8 @@ class ActionButtons extends StatelessWidget {
 
   ButtonStyle _buttonStyle() {
     return ElevatedButton.styleFrom(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      backgroundColor: Color(0xffe6cf8c),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      backgroundColor: const Color(0xffe6cf8c),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       elevation: 0,
     );
