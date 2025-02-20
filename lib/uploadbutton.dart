@@ -27,7 +27,7 @@ class UploadButtonButton extends StatelessWidget {
             child: Text(
               text,
               style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   //      fontWeight: FontWeight.bold,
                   color: Colors.black),
             ),

@@ -176,12 +176,6 @@ class ProfilePageState extends State<ProfilePage> {
           'Edit Profile',
           style: TextStyle(color: Color(0xffe6cf8c)),
         ),
-        actions: [
-          IconButton(
-            icon: Image.asset('assets/whatsapp.png', width: 30, height: 30),
-            onPressed: () => _launchWhatsApp(_messageController.text),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -190,21 +184,6 @@ class ProfilePageState extends State<ProfilePage> {
             key: _formKey,
             child: Column(
               children: [
-                Text(
-                  "1.Add 0632616407 to Whatsapp\n2.Enter message\n3.Press WhatsApp button to send message.",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-                SizedBox(height: 8),
-                TextField(
-                  controller: _messageController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter message',
-                    hintStyle: TextStyle(color: Colors.white),
-                    border: OutlineInputBorder(),
-                  ),
-                  style: TextStyle(color: Colors.white),
-                ),
-                SizedBox(height: 15),
                 if (!_isProfileSaved) ...[
                   Text(
                     'Fill in ALL the fields below.',
@@ -739,6 +718,66 @@ class ProfilePageState extends State<ProfilePage> {
                               'Confirm Acceptance',
                               style: TextStyle(
                                   color: Color(0xffe6cf8c), fontSize: 14),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20), // Add some space before WhatsApp section
+                // WhatsApp Section moved to the bottom
+                Card(
+                  margin:
+                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                  color: Colors.grey[800],
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0)),
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "1. Add 0632616407 to WhatsApp\n2. Enter message\n3. Press WhatsApp button to send message.",
+                          style: TextStyle(fontSize: 12, color: Colors.white),
+                        ),
+                        SizedBox(height: 8),
+                        TextField(
+                          controller: _messageController,
+                          decoration: InputDecoration(
+                            hintText: 'Enter message',
+                            hintStyle:
+                                TextStyle(color: Colors.white, fontSize: 12),
+                            border: OutlineInputBorder(),
+                          ),
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        SizedBox(height: 10),
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () =>
+                                _launchWhatsApp(_messageController.text),
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              backgroundColor: Color(0xffe6cf8c),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6)),
+                              elevation: 0,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image.asset('assets/whatsapp.png',
+                                    width: 20, height: 20),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Send via WhatsApp',
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 14),
+                                ),
+                              ],
                             ),
                           ),
                         ),

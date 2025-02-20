@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, unused_local_variable, deprecated_member_use
+// ignore_for_file: avoid_print, unused_local_variable, deprecated_member_use, use_build_context_synchronously
 
 import 'dart:io';
 import 'dart:typed_data';
@@ -35,44 +35,66 @@ class UploadDocumentsState extends State<UploadDocuments> {
     final tempFile = await _createTempFile(fileBytes, fileName);
     final userId = Supabase.instance.client.auth.currentUser?.id;
 
-    if (userId == null) return;
+    if (userId == null) {
+      print('No user ID found');
+      return;
+    }
 
-    final response = await Supabase.instance.client
-        .from('profiles')
-        .select('workerpin')
-        .eq('user_id', userId)
-        .single();
+    try {
+      final response = await Supabase.instance.client
+          .from('profiles')
+          .select('workerpin')
+          .eq('user_id', userId)
+          .single();
 
-    final workerPin = response['workerpin'] as String?;
+      final workerPin = response['workerpin'] as String?;
 
-    if (workerPin == null) return;
-
-    final storagePath = 'uploads/$workerPin/$fileName';
-    final storage = Supabase.instance.client.storage.from('profiles');
-    await storage.upload(storagePath, tempFile);
-
-    final publicUrl = storage.getPublicUrl(storagePath);
-    print('File uploaded to: $publicUrl');
-
-    setState(() {
-      switch (documentType) {
-        case 'ID':
-          isIdUploaded = true;
-          break;
-        case 'Address':
-          isAddressUploaded = true;
-          break;
-        case 'Qualifications':
-          isQualificationsUploaded = true;
-          break;
-        case 'Bank':
-          isBankConfirmationUploaded = true;
-          break;
-        case 'Medical':
-          isMedicalUploaded = true;
-          break;
+      if (workerPin == null) {
+        print('No worker PIN found for user');
+        return;
       }
-    });
+
+      final storagePath = 'uploads/$workerPin/$fileName';
+      final storage = Supabase.instance.client.storage.from('profiles');
+
+      // Upload the file to Supabase Storage
+      await storage.upload(storagePath, tempFile);
+
+      // Get the public URL after successful upload
+      final publicUrl = storage.getPublicUrl(storagePath);
+      print('File uploaded successfully to: $publicUrl');
+
+      // Update the checkbox state only after successful upload
+      setState(() {
+        switch (documentType) {
+          case 'ID':
+            isIdUploaded = true;
+            break;
+          case 'Address':
+            isAddressUploaded = true;
+            break;
+          case 'Qualifications':
+            isQualificationsUploaded = true;
+            break;
+          case 'Bank':
+            isBankConfirmationUploaded = true;
+            break;
+          case 'Medical':
+            isMedicalUploaded = true;
+            break;
+        }
+      });
+    } catch (e) {
+      print('Error uploading document: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to upload $documentType: $e')),
+      );
+    } finally {
+      // Clean up temporary file
+      if (await tempFile.exists()) {
+        await tempFile.delete();
+      }
+    }
   }
 
   Future<File> _createTempFile(Uint8List bytes, String fileName) async {
@@ -82,7 +104,7 @@ class UploadDocumentsState extends State<UploadDocuments> {
     return tempFile;
   }
 
-  // Custom button style
+  // Custom button style with smaller text
   ButtonStyle customButtonStyle({bool isEnabled = true}) {
     return ElevatedButton.styleFrom(
       foregroundColor: Colors.white,
@@ -95,7 +117,7 @@ class UploadDocumentsState extends State<UploadDocuments> {
       elevation: isEnabled ? 4 : 0,
       shadowColor: Colors.black.withOpacity(0.2),
       textStyle: TextStyle(
-        fontSize: 16,
+        fontSize: 12, // Reduced font size from 16 to 12
         fontWeight: FontWeight.bold,
       ),
     );
@@ -106,10 +128,10 @@ class UploadDocumentsState extends State<UploadDocuments> {
     return Scaffold(
       backgroundColor: Colors.grey[900], // Match ProfilePage background
       appBar: AppBar(
-        backgroundColor: Colors.grey[900],
+        backgroundColor: (Color(0xffe6cf8c)),
         title: Text(
           'Upload Documents',
-          style: TextStyle(color: Color(0xffe6cf8c)),
+          style: TextStyle(color: Colors.black),
         ),
       ),
       body: SingleChildScrollView(
@@ -118,47 +140,41 @@ class UploadDocumentsState extends State<UploadDocuments> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Please upload all required documents below:',
+              'Please upload all required documents:',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontSize: 14,
               ),
             ),
             SizedBox(height: 24),
             _buildDocumentTile(
-              title: 'Copy of ID',
               isUploaded: isIdUploaded,
               onUpload: () => uploadDocument('ID'),
               buttonText: 'Upload ID',
             ),
             SizedBox(height: 16),
             _buildDocumentTile(
-              title: 'Proof of Address',
               isUploaded: isAddressUploaded,
               onUpload: () => uploadDocument('Address'),
               buttonText: 'Upload Address',
             ),
             SizedBox(height: 16),
             _buildDocumentTile(
-              title: 'Qualifications',
               isUploaded: isQualificationsUploaded,
               onUpload: () => uploadDocument('Qualifications'),
               buttonText: 'Upload Qualifications',
             ),
             SizedBox(height: 16),
             _buildDocumentTile(
-              title: 'Bank Confirmation',
               isUploaded: isBankConfirmationUploaded,
               onUpload: () => uploadDocument('Bank'),
               buttonText: 'Upload Bank Confirmation',
             ),
             SizedBox(height: 16),
             _buildDocumentTile(
-              title: 'Medical Records',
               isUploaded: isMedicalUploaded,
               onUpload: () => uploadDocument('Medical'),
-              buttonText: 'Upload Medical Records',
+              buttonText: 'Upload Medical Certificate',
             ),
           ],
         ),
@@ -167,7 +183,6 @@ class UploadDocumentsState extends State<UploadDocuments> {
   }
 
   Widget _buildDocumentTile({
-    required String title,
     required bool isUploaded,
     required VoidCallback onUpload,
     required String buttonText,
@@ -189,28 +204,23 @@ class UploadDocumentsState extends State<UploadDocuments> {
         children: [
           Checkbox(
             value: isUploaded,
-            onChanged: null,
+            onChanged: null, // Read-only checkbox, updated via upload success
             activeColor: Color(0xffe6cf8c),
             checkColor: Colors.black,
           ),
           SizedBox(width: 12),
           Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
-            ),
-          ),
-          SizedBox(width: 12),
-          ElevatedButton(
-            onPressed: isUploaded ? null : onUpload,
-            style: customButtonStyle(isEnabled: !isUploaded),
-            child: Text(
-              buttonText,
-              style: TextStyle(
-                color: isUploaded ? Colors.grey[600] : Colors.black,
+            // Button takes up remaining space
+            child: ElevatedButton(
+              onPressed: isUploaded ? null : onUpload,
+              style: customButtonStyle(isEnabled: !isUploaded),
+              child: Text(
+                buttonText,
+                style: TextStyle(
+                  color: isUploaded ? Colors.grey[600] : Colors.black,
+                ),
+                overflow:
+                    TextOverflow.ellipsis, // Truncates button text if too long
               ),
             ),
           ),

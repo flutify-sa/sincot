@@ -6,6 +6,7 @@ import 'package:sincot/mytextfield.dart';
 import 'package:flutter/material.dart';
 import 'package:sincot/profilepage.dart';
 import 'package:sincot/registerpage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   final void Function()? onTap;
@@ -22,8 +23,46 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool _obscureText = true; // To control the visibility of the password
+  bool _rememberMe = false; // To track the "Remember Me" checkbox state
 
   final Authservice _authService = Authservice();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials(); // Load saved credentials when the page initializes
+  }
+
+  // Load saved credentials from SharedPreferences
+  Future<void> _loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedEmail = prefs.getString('email');
+    final savedPassword = prefs.getString('password');
+    final rememberMe = prefs.getBool('rememberMe') ?? false;
+
+    if (savedEmail != null && savedPassword != null && rememberMe) {
+      setState(() {
+        emailController.text = savedEmail;
+        passwordController.text = savedPassword;
+        _rememberMe = true; // Set checkbox to checked if credentials were saved
+      });
+    }
+  }
+
+  // Save credentials to SharedPreferences
+  Future<void> _saveCredentials(String email, String password) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_rememberMe) {
+      await prefs.setString('email', email);
+      await prefs.setString('password', password);
+      await prefs.setBool('rememberMe', true);
+    } else {
+      // Clear saved credentials if "Remember Me" is unchecked
+      await prefs.remove('email');
+      await prefs.remove('password');
+      await prefs.setBool('rememberMe', false);
+    }
+  }
 
   // Login method
   Future<void> login() async {
@@ -36,6 +75,8 @@ class _LoginPageState extends State<LoginPage> {
 
       if (response?.session != null) {
         print('Login successful for user: ${response?.session?.user.email}');
+        await _saveCredentials(
+            email, password); // Save credentials if login is successful
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => ProfilePage()),
@@ -96,6 +137,27 @@ class _LoginPageState extends State<LoginPage> {
                     });
                   },
                 ),
+              ),
+              const SizedBox(height: 10),
+              // "Remember Me" Checkbox
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Checkbox(
+                    value: _rememberMe,
+                    onChanged: (value) {
+                      setState(() {
+                        _rememberMe = value ?? false;
+                      });
+                    },
+                    checkColor: Colors.black,
+                    activeColor: Color(0xffe6cf8c),
+                  ),
+                  Text(
+                    'Remember Me',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
               MyButton(onTap: login, text: 'Sign In'),
