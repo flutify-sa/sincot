@@ -1,9 +1,9 @@
-// ignore_for_file: avoid_print, unused_local_variable
+// ignore_for_file: avoid_print, unused_local_variable, deprecated_member_use
 
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UploadDocuments extends StatefulWidget {
@@ -21,29 +21,21 @@ class UploadDocumentsState extends State<UploadDocuments> {
   bool isMedicalUploaded = false;
 
   Future<void> uploadDocument(String documentType) async {
-    // Step 1: Pick a file
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
       withData: true,
     );
 
-    if (result == null) {
-      return;
-    }
+    if (result == null) return;
 
     PlatformFile file = result.files.first;
     final fileBytes = file.bytes!;
     final fileName = file.name;
 
-    // Step 2: Create a temporary file
     final tempFile = await _createTempFile(fileBytes, fileName);
-
-    // Step 3: Retrieve the workerpin from the profiles table
     final userId = Supabase.instance.client.auth.currentUser?.id;
 
-    if (userId == null) {
-      return;
-    }
+    if (userId == null) return;
 
     final response = await Supabase.instance.client
         .from('profiles')
@@ -53,35 +45,33 @@ class UploadDocumentsState extends State<UploadDocuments> {
 
     final workerPin = response['workerpin'] as String?;
 
-    if (workerPin == null) {
-      return;
-    }
+    if (workerPin == null) return;
 
-    // Step 4: Define the storage path
     final storagePath = 'uploads/$workerPin/$fileName';
     final storage = Supabase.instance.client.storage.from('profiles');
+    await storage.upload(storagePath, tempFile);
 
-    // Step 5: Upload the file
-    final uploadResponse = await storage.upload(storagePath, tempFile);
-
-    // Check for errors in the upload response
-
-    // Step 6: Get the public URL of the uploaded file
     final publicUrl = storage.getPublicUrl(storagePath);
-    print('File uploaded to: $publicUrl'); // Use the public URL as needed
+    print('File uploaded to: $publicUrl');
 
-    // Optionally, you can update the database with the public URL if needed
-    // await Supabase.instance.client
-    //     .from('profiles')
-    //     .update({fileName.toLowerCase(): publicUrl}).eq('workerpin', workerPin);
-
-    // Update the state to reflect the upload
     setState(() {
-      if (documentType == 'ID') isIdUploaded = true;
-      if (documentType == 'Address') isAddressUploaded = true;
-      if (documentType == 'Qualifications') isQualificationsUploaded = true;
-      if (documentType == 'Bank') isBankConfirmationUploaded = true;
-      if (documentType == 'Medical') isMedicalUploaded = true;
+      switch (documentType) {
+        case 'ID':
+          isIdUploaded = true;
+          break;
+        case 'Address':
+          isAddressUploaded = true;
+          break;
+        case 'Qualifications':
+          isQualificationsUploaded = true;
+          break;
+        case 'Bank':
+          isBankConfirmationUploaded = true;
+          break;
+        case 'Medical':
+          isMedicalUploaded = true;
+          break;
+      }
     });
   }
 
@@ -92,74 +82,139 @@ class UploadDocumentsState extends State<UploadDocuments> {
     return tempFile;
   }
 
+  // Custom button style
+  ButtonStyle customButtonStyle({bool isEnabled = true}) {
+    return ElevatedButton.styleFrom(
+      foregroundColor: Colors.white,
+      backgroundColor: isEnabled ? Color(0xffe6cf8c) : Colors.grey[400],
+      disabledBackgroundColor: Colors.grey[400],
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      elevation: isEnabled ? 4 : 0,
+      shadowColor: Colors.black.withOpacity(0.2),
+      textStyle: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[900], // Match ProfilePage background
       appBar: AppBar(
-        title: Text('Upload Documents'),
+        backgroundColor: Colors.grey[900],
+        title: Text(
+          'Upload Documents',
+          style: TextStyle(color: Color(0xffe6cf8c)),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CheckboxListTile(
-              title: Text('Copy of ID'),
-              value: isIdUploaded,
-              onChanged: null,
-              controlAffinity: ListTileControlAffinity.leading,
-              secondary: ElevatedButton(
-                onPressed: isIdUploaded ? null : () => uploadDocument('ID'),
-                child: Text('Upload ID'),
+            Text(
+              'Please upload all required documents below:',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            CheckboxListTile(
-              title: Text('Proof of Address'),
-              value: isAddressUploaded,
-              onChanged: null,
-              controlAffinity: ListTileControlAffinity.leading,
-              secondary: ElevatedButton(
-                onPressed:
-                    isAddressUploaded ? null : () => uploadDocument('Address'),
-                child: Text('Upload Address'),
-              ),
+            SizedBox(height: 24),
+            _buildDocumentTile(
+              title: 'Copy of ID',
+              isUploaded: isIdUploaded,
+              onUpload: () => uploadDocument('ID'),
+              buttonText: 'Upload ID',
             ),
-            CheckboxListTile(
-              title: Text('Qualifications'),
-              value: isQualificationsUploaded,
-              onChanged: null,
-              controlAffinity: ListTileControlAffinity.leading,
-              secondary: ElevatedButton(
-                onPressed: isQualificationsUploaded
-                    ? null
-                    : () => uploadDocument('Qualifications'),
-                child: Text('Upload Qualifications'),
-              ),
+            SizedBox(height: 16),
+            _buildDocumentTile(
+              title: 'Proof of Address',
+              isUploaded: isAddressUploaded,
+              onUpload: () => uploadDocument('Address'),
+              buttonText: 'Upload Address',
             ),
-            CheckboxListTile(
-              title: Text('Bank Confirmation'),
-              value: isBankConfirmationUploaded,
-              onChanged: null,
-              controlAffinity: ListTileControlAffinity.leading,
-              secondary: ElevatedButton(
-                onPressed: isBankConfirmationUploaded
-                    ? null
-                    : () => uploadDocument('Bank'),
-                child: Text('Upload Bank Confirmation'),
-              ),
+            SizedBox(height: 16),
+            _buildDocumentTile(
+              title: 'Qualifications',
+              isUploaded: isQualificationsUploaded,
+              onUpload: () => uploadDocument('Qualifications'),
+              buttonText: 'Upload Qualifications',
             ),
-            CheckboxListTile(
-              title: Text('Medical Records'),
-              value: isMedicalUploaded,
-              onChanged: null,
-              controlAffinity: ListTileControlAffinity.leading,
-              secondary: ElevatedButton(
-                onPressed:
-                    isMedicalUploaded ? null : () => uploadDocument('Medical'),
-                child: Text('Upload Medical Records'),
-              ),
+            SizedBox(height: 16),
+            _buildDocumentTile(
+              title: 'Bank Confirmation',
+              isUploaded: isBankConfirmationUploaded,
+              onUpload: () => uploadDocument('Bank'),
+              buttonText: 'Upload Bank Confirmation',
+            ),
+            SizedBox(height: 16),
+            _buildDocumentTile(
+              title: 'Medical Records',
+              isUploaded: isMedicalUploaded,
+              onUpload: () => uploadDocument('Medical'),
+              buttonText: 'Upload Medical Records',
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildDocumentTile({
+    required String title,
+    required bool isUploaded,
+    required VoidCallback onUpload,
+    required String buttonText,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Checkbox(
+            value: isUploaded,
+            onChanged: null,
+            activeColor: Color(0xffe6cf8c),
+            checkColor: Colors.black,
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+          ),
+          SizedBox(width: 12),
+          ElevatedButton(
+            onPressed: isUploaded ? null : onUpload,
+            style: customButtonStyle(isEnabled: !isUploaded),
+            child: Text(
+              buttonText,
+              style: TextStyle(
+                color: isUploaded ? Colors.grey[600] : Colors.black,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

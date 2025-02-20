@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:sincot/contract_text_widget.dart'; // Ensure this import is correct
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:typed_data';
-import 'package:intl/intl.dart'; // For Uint8List
+import 'package:intl/intl.dart';
 
 class LocalContractPage extends StatefulWidget {
   final String name;
