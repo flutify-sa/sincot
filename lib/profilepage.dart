@@ -7,7 +7,6 @@ import 'package:sincot/profile_service.dart';
 import 'package:sincot/profile_form.dart';
 import 'package:sincot/action_buttons.dart';
 import 'package:sincot/acceptance_card.dart';
-import 'package:sincot/whatsapp_card.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -120,7 +119,6 @@ class ProfilePageState extends State<ProfilePage> {
                     ),
               AcceptanceCard(
                   workerpinController: _controllers.workerpinController),
-              WhatsappCard(messageController: _controllers.messageController),
             ],
           ),
         ),

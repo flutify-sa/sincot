@@ -1,5 +1,6 @@
 import 'package:sincot/authgate.dart';
 import 'package:flutter/material.dart';
+import 'package:sincot/dashboard_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Sincot Trading',
-      home: AuthGate(),
+      home: DashboardPage(),
     );
   }
 }

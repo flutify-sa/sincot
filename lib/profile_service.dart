@@ -1,5 +1,5 @@
 // profile_service.dart
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,15 +35,51 @@ class ProfileService {
     required Function(bool) onLoadingChanged,
     required Function(bool) onProfileSavedChanged,
   }) async {
-    if (!formKey.currentState!.validate()) return;
+    print('Attempting to save profile...');
+    if (!formKey.currentState!.validate()) {
+      print('Form validation failed. Checking fields:');
+      print('name: ${controllers.nameController.text}');
+      print('surname: ${controllers.surnameController.text}');
+      print('mobile: ${controllers.mobileController.text}');
+      print('addressStreet: ${controllers.addressControllerStreet.text}');
+      print('addressTown: ${controllers.addressControllerTown.text}');
+      print('addressCode: ${controllers.addressControllerCode.text}');
+      print('bankDetailsBank: ${controllers.bankDetailsControllerBank.text}');
+      print(
+          'bankDetailsAccount: ${controllers.bankDetailsControllerAccount.text}');
+      print('bankDetailsType: ${controllers.bankDetailsControllerType.text}');
+      print('nextOfKin: ${controllers.nextOfKinController.text}');
+      print('said: ${controllers.saidController.text}');
+      print('workerpin: ${controllers.workerpinController.text}');
+      print('childrenNames1: ${controllers.childrenNamesController1.text}');
+      print('childrenNames2: ${controllers.childrenNamesController2.text}');
+      print('childrenNames3: ${controllers.childrenNamesController3.text}');
+      print('parentDetails1: ${controllers.parentDetailsController1.text}');
+      print('parentDetails2: ${controllers.parentDetailsController2.text}');
+      print('motherinlaw: ${controllers.motherinlaw.text}');
+      print('fatherinlaw: ${controllers.fatherinlaw.text}');
+      print('immediatefamily: ${controllers.immediatefamily.text}');
+      print('selectedRaceGender: $selectedRaceGender');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Please fill all required fields correctly')),
+      );
+      return;
+    }
 
+    print('Form validated successfully');
     onLoadingChanged(true);
 
     try {
       final user = supabase.auth.currentUser;
-      if (user == null) return;
+      if (user == null) {
+        print('No authenticated user found');
+        return;
+      }
 
       final String userId = user.id;
+      print('Saving profile for user: $userId');
+
       final String name = controllers.nameController.text.trim();
       final String surname = controllers.surnameController.text.trim();
       final String mobile = controllers.mobileController.text.trim();
@@ -93,16 +129,28 @@ class ProfileService {
         'racegender': selectedRaceGender,
       };
 
+      print('Upserting profile to Supabase: $updates');
       await supabase.from('profiles').upsert(updates);
+      print('Profile saved to Supabase successfully');
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isProfileSaved', true);
+      print('isProfileSaved set to true in SharedPreferences');
+
+      final savedValue = prefs.getBool('isProfileSaved');
+      print('Verified isProfileSaved after set: $savedValue');
 
       onProfileSavedChanged(true);
 
+      print('Navigating to UploadDocuments');
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const UploadDocuments()),
+      );
+    } catch (e) {
+      print('Error saving profile: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save profile: $e')),
       );
     } finally {
       onLoadingChanged(false);

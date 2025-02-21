@@ -78,33 +78,33 @@ class _LoginPageState extends State<LoginPage> {
         print('Login successful for user: ${response?.session?.user.email}');
         await _saveCredentials(email, password);
 
-        // Get user progress from ProfileService
         final progress = await _profileService.getUserProgress();
+        print('User progress from SharedPreferences: $progress');
+
         final bool isProfileSaved = progress['isProfileSaved']!;
         final bool isDocumentsUploaded = progress['isDocumentsUploaded']!;
         final bool isContractViewed = progress['isContractViewed']!;
 
-        // Navigation logic
+        print('isProfileSaved: $isProfileSaved');
+        print('isDocumentsUploaded: $isDocumentsUploaded');
+        print('isContractViewed: $isContractViewed');
+
         if (!isProfileSaved) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const ProfilePage()),
-          );
+          print('Navigating to ProfilePage (Profile not saved)');
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const ProfilePage()));
         } else if (isProfileSaved && !isDocumentsUploaded) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const UploadDocuments()),
-          );
+          print('Navigating to UploadDocuments (Documents not uploaded)');
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const UploadDocuments()));
         } else if (isProfileSaved && isDocumentsUploaded && !isContractViewed) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const ProfilePage()),
-          );
+          print('Navigating to ProfilePage (Contract not viewed)');
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const ProfilePage()));
         } else if (isProfileSaved && isDocumentsUploaded && isContractViewed) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const DashboardPage()),
-          );
+          print('Navigating to DashboardPage (All conditions met)');
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const DashboardPage()));
         }
       } else {
         throw Exception('Invalid email or Portal Pin.');
